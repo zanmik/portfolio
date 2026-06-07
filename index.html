@@ -948,7 +948,7 @@
 
         let mediaHtml = '';
         if (project.video) {
-            mediaHtml = `<video src="${assetUrl(project.video)}" class="w-full max-h-[60vh] object-contain" controls controlsList="nodownload" preload="auto" autoplay></video>`;
+            mediaHtml = `<video src="${assetUrl(project.video)}" class="w-full max-h-[60vh] object-contain" controls controlsList="nodownload" preload="auto" autoplay muted playsinline></video>`;
         } else if (hasComparison) {
             const beforeImg = assetUrl(project.images[0]);
             const afterImg = assetUrl(project.images[1]);
@@ -1003,6 +1003,48 @@
                     ${project.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener" class="apple-btn apple-btn-primary text-sm"><i class="fa-solid fa-external-link-alt text-xs"></i>${l.label}</a>`).join('')}
                 </div>` : ''}
             </div>`;
+        // Attach swipe handlers to modal carousel image
+        const carouselImg = document.getElementById(`modal-carousel-img-${project.id}`);
+        if (carouselImg && project.images && project.images.length > 1 && !project.video && !hasComparison) {
+            let mcStartX = 0, mcOffsetX = 0, mcActive = false, mcMoved = false;
+            const onStart = (clientX) => {
+                mcActive = true; mcMoved = false;
+                mcStartX = clientX; mcOffsetX = 0;
+                carouselImg.style.transition = 'none';
+                carouselImg.style.cursor = 'grabbing';
+            };
+            const onMove = (clientX) => {
+                if (!mcActive) return;
+                mcOffsetX = clientX - mcStartX;
+                if (Math.abs(mcOffsetX) > 5) mcMoved = true;
+                carouselImg.style.transform = `translateX(${mcOffsetX}px)`;
+            };
+            const onEnd = () => {
+                if (!mcActive) return;
+                mcActive = false;
+                carouselImg.style.transition = 'transform 0.25s ease-out';
+                const threshold = 50;
+                if (Math.abs(mcOffsetX) > threshold) {
+                    if (mcOffsetX > 0) { modalCarouselPrev(project.id); }
+                    else { modalCarouselNext(project.id); }
+                }
+                carouselImg.style.transform = 'translateX(0)';
+                carouselImg.style.cursor = 'zoom-in';
+                // Reset transition after snap
+                setTimeout(() => { carouselImg.style.transition = ''; }, 260);
+            };
+            carouselImg.addEventListener('mousedown', (e) => { if (e.button === 0) { e.preventDefault(); onStart(e.clientX); } });
+            carouselImg.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { onStart(e.touches[0].clientX); } }, { passive: false });
+            document.addEventListener('mousemove', (e) => { onMove(e.clientX); });
+            document.addEventListener('touchmove', (e) => { if (e.touches.length === 1) { onMove(e.touches[0].clientX); if (Math.abs(mcOffsetX) > 10) e.preventDefault(); } }, { passive: false });
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchend', onEnd);
+            // Open lightbox only if not swiped
+            carouselImg.addEventListener('click', (e) => {
+                if (mcMoved) { e.preventDefault(); e.stopPropagation(); mcMoved = false; }
+            }, true);
+        }
+
         projectModal.classList.add('active');
         document.body.style.overflow = 'hidden';
 
@@ -1076,6 +1118,9 @@
     // Lightbox zoom & pan state
     let lbScale = 1, lbTranslateX = 0, lbTranslateY = 0;
     let lbIsDragging = false, lbStartX = 0, lbStartY = 0;
+    // Lightbox swipe state
+    let lbSwipeStartX = 0, lbSwipeOffsetX = 0, lbSwipeActive = false;
+    let lbSwipeDirection = null; // 'left' or 'right'
 
     function resetLightboxTransform() {
         lbScale = 1; lbTranslateX = 0; lbTranslateY = 0;
@@ -1118,10 +1163,20 @@
             resetLightboxTransform();
         });
 
-        // Right-click drag to pan when zoomed
+        // Mouse drag: left-click swipe, right-click pan when zoomed
         lightboxImg.addEventListener('mousedown', (e) => {
+            if (e.button === 0 && lbScale <= 1 && lightboxImages.length > 1) {
+                // Left click swipe when not zoomed
+                lbSwipeActive = true;
+                lbSwipeStartX = e.clientX;
+                lbSwipeOffsetX = 0;
+                lightboxImg.style.transition = 'none';
+                lightboxImg.style.cursor = 'grabbing';
+                e.preventDefault();
+                return;
+            }
             if (lbScale <= 1) return;
-            if (e.button !== 2) return; // Only right mouse button
+            if (e.button !== 2) return; // Only right mouse button for pan
             lbIsDragging = true;
             lbStartX = e.clientX - lbTranslateX;
             lbStartY = e.clientY - lbTranslateY;
@@ -1131,6 +1186,12 @@
             lightboxImg.style.transition = 'none';
         });
         document.addEventListener('mousemove', (e) => {
+            if (lbSwipeActive) {
+                e.preventDefault();
+                lbSwipeOffsetX = e.clientX - lbSwipeStartX;
+                lightboxImg.style.transform = `translateX(${lbSwipeOffsetX}px)`;
+                return;
+            }
             if (!lbIsDragging) return;
             e.preventDefault();
             lbTranslateX = e.clientX - lbStartX;
@@ -1138,6 +1199,24 @@
             applyLightboxTransform();
         });
         document.addEventListener('mouseup', (e) => {
+            if (lbSwipeActive) {
+                lbSwipeActive = false;
+                lightboxImg.style.transition = 'transform 0.25s ease-out';
+                lightboxImg.style.cursor = 'grab';
+                const threshold = 60;
+                if (Math.abs(lbSwipeOffsetX) > threshold) {
+                    if (lbSwipeOffsetX > 0) {
+                        lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
+                    } else {
+                        lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
+                    }
+                    updateLightbox();
+                    lightboxImg.style.transform = 'translateX(0)';
+                } else {
+                    lightboxImg.style.transform = 'translateX(0)';
+                }
+                return;
+            }
             if (lbIsDragging && e.button === 2) {
                 lbIsDragging = false;
                 lightboxImg.classList.remove('cursor-grabbing');
@@ -1149,6 +1228,40 @@
         // Prevent default context menu on lightbox image
         lightboxImg.addEventListener('contextmenu', (e) => {
             e.preventDefault();
+        });
+
+        // Touch swipe for lightbox
+        lightboxImg.addEventListener('touchstart', (e) => {
+            if (lbScale > 1 || lightboxImages.length <= 1) return;
+            if (e.touches.length === 1) {
+                lbSwipeActive = true;
+                lbSwipeStartX = e.touches[0].clientX;
+                lbSwipeOffsetX = 0;
+                lightboxImg.style.transition = 'none';
+            }
+        }, { passive: false });
+        lightboxImg.addEventListener('touchmove', (e) => {
+            if (!lbSwipeActive || lbScale > 1) return;
+            lbSwipeOffsetX = e.touches[0].clientX - lbSwipeStartX;
+            lightboxImg.style.transform = `translateX(${lbSwipeOffsetX}px)`;
+            if (Math.abs(lbSwipeOffsetX) > 10) e.preventDefault();
+        }, { passive: false });
+        lightboxImg.addEventListener('touchend', () => {
+            if (!lbSwipeActive || lbScale > 1) return;
+            lbSwipeActive = false;
+            lightboxImg.style.transition = 'transform 0.25s ease-out';
+            const threshold = 60;
+            if (Math.abs(lbSwipeOffsetX) > threshold) {
+                if (lbSwipeOffsetX > 0) {
+                    lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
+                } else {
+                    lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
+                }
+                updateLightbox();
+                lightboxImg.style.transform = 'translateX(0)';
+            } else {
+                lightboxImg.style.transform = 'translateX(0)';
+            }
         });
     }
 
