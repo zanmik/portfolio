@@ -225,7 +225,7 @@
             user-select: none;
             -webkit-user-select: none;
         }
-        .ba-slider img {
+        .ba-slider .ba-base-img {
             display: block;
             width: 100%;
             height: auto;
@@ -243,6 +243,7 @@
             height: 100%;
             width: auto;
             max-width: none;
+            pointer-events: none;
         }
         .ba-slider .ba-handle {
             position: absolute;
@@ -459,6 +460,7 @@
                             <span class="apple-tag">Blender</span>
                             <span class="apple-tag">Vray渲染</span>
                             <span class="apple-tag">骨骼绑定</span>
+                            <span class="apple-tag">角色动画</span>
                             <span class="apple-tag">AE后期</span>
                             <span class="apple-tag">产品渲染</span>
                             <span class="apple-tag">全景图</span>
@@ -551,6 +553,18 @@
 
     <!-- ==================== SCRIPTS ==================== -->
     <script>
+    // ===== 素材基础URL配置 =====
+    // 本地开发时留空 ''，部署到腾讯云COS后改为你的COS地址，如：
+    // 'https://your-bucket-1234567890.cos.ap-guangzhou.myqcloud.com/'
+    const ASSETS_BASE_URL = 'https://zanmik-portfolio-1440924341.cos.ap-guangzhou.myqcloud.com/';
+
+    // 自动为所有素材路径添加基础URL前缀
+    function assetUrl(path) {
+        if (!path) return path;
+        if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+        return ASSETS_BASE_URL + path;
+    }
+
     const projects = [
         // ===== 3D建模 =====
         {
@@ -592,7 +606,7 @@
             images: ['assets/pbr-model/ct.jpg', 'assets/pbr-model/ct-exploded.jpg', 'assets/pbr-model/ct-structure.jpg'],
             description: 'CT扫描设备PBR全流程制作，含外观与内部结构展示。',
             detail: 'CT医疗设备的PBR全流程模型制作。从建模、UV展开、烘焙到Substance Painter贴图绘制，包含外观渲染、内部拆解图和结构图，呈现照片级真实效果。',
-            role: '独立完成', techs: ['3ds Max', 'Substance Painter', 'PBR Workflow'],
+            role: '独立完成', techs: ['Blender', 'Substance Painter', 'PBR Workflow'],
         },
         {
             id: 6, title: 'DR设备', category: 'pbr-model',
@@ -600,23 +614,23 @@
             images: ['assets/pbr-model/dr.jpg', 'assets/pbr-model/dr1.jpg', 'assets/pbr-model/dr2.jpg'],
             description: 'DR数字化X射线设备PBR模型制作。',
             detail: 'DR（数字化X射线摄影系统）设备的PBR模型制作。包含多角度外观展示，体现医疗设备的精密质感与专业外观。',
-            role: '独立完成', techs: ['3ds Max', 'Substance Painter', 'PBR Workflow'],
+            role: '独立完成', techs: ['Blender', 'Substance Painter', 'PBR Workflow'],
         },
         {
-            id: 7, title: '材质UV展示', category: 'pbr-model',
-            tags: ['UV展开', '材质', 'PBR'], cover: 'assets/pbr-model/material-uv1.jpg',
-            images: ['assets/pbr-model/material-uv1.jpg', 'assets/pbr-model/material-uv2.jpg', 'assets/pbr-model/material-uv3.jpg', 'assets/pbr-model/material-uv4.jpg', 'assets/pbr-model/material-uv5.jpg'],
-            description: '多种材质类型的UV展开与贴图绘制展示。',
-            detail: '展示不同材质类型的UV展开布局与贴图绘制成果。涵盖金属、塑料、织物、皮革等多种材质，体现对PBR工作流程的熟练掌握。',
-            role: '独立完成', techs: ['UV展开', 'Substance Painter', 'PBR Texturing'],
+            id: 7, title: '牙科器械', category: 'pbr-model',
+            tags: ['PBR', '牙科', '医疗器械'], cover: 'assets/pbr-model/dental1.jpg',
+            images: ['assets/pbr-model/dental1.jpg', 'assets/pbr-model/dental2.jpg', 'assets/pbr-model/dental3.jpg'],
+            description: '牙科医疗器械PBR模型，展示精密医疗设备外观。',
+            detail: '牙科医疗器械的PBR模型制作。包含牙科手术器械的精细建模与材质表现，体现医疗设备的精密与专业。',
+            role: '独立完成', techs: ['Blender', 'Substance Painter', '医疗器械'],
         },
         {
             id: 8, title: '高效液相色谱-质谱系统', category: 'pbr-model',
             tags: ['PBR', '科研设备', 'Substance Painter'], cover: 'assets/pbr-model/lcms2.jpg',
             images: ['assets/pbr-model/lcms2.jpg', 'assets/pbr-model/lcms3.jpg'],
             description: '高效液相色谱-四极杆飞行时间质谱联用系统PBR模型。',
-            detail: '高效液相色谱-四极杆飞行时间质谱联用系统的PBR模型制作。清晰展示各部件结构和整体外观，用于产品宣传和技术文档。',
-            role: '独立完成', techs: ['3ds Max', 'Substance Painter', '科研设备'],
+            detail: '高效液相色谱-四极杆飞行时间质谱联用系统的PBR模型制作。清晰展示各部件结构和整体外观。',
+            role: '独立完成', techs: ['Blender', 'Substance Painter', '科研设备'],
         },
         {
             id: 9, title: '激光共聚焦显微镜', category: 'pbr-model',
@@ -624,7 +638,7 @@
             images: ['assets/pbr-model/confocal-2.jpg', 'assets/pbr-model/confocal-4.jpg'],
             description: '激光共聚焦显微镜PBR模型，展示精密科研仪器外观。',
             detail: '激光共聚焦显微镜的PBR模型作品。该设备结构复杂，包含精密光学系统、电动载物台、激光模块等，着重表现仪器的高级质感和科技感。',
-            role: '独立完成', techs: ['3ds Max', 'Substance Painter', '精密仪器'],
+            role: '独立完成', techs: ['Blender', 'Substance Painter', '精密仪器'],
         },
         {
             id: 10, title: '扫描电镜', category: 'pbr-model',
@@ -632,15 +646,15 @@
             images: ['assets/pbr-model/sem1.jpg', 'assets/pbr-model/sem2.jpg'],
             description: '扫描电子显微镜PBR模型制作。',
             detail: '扫描电子显微镜（SEM）的PBR模型制作。展示设备的外观细节与专业质感，适用于科研仪器产品展示。',
-            role: '独立完成', techs: ['3ds Max', 'Substance Painter', '科研设备'],
+            role: '独立完成', techs: ['Blender', 'Substance Painter', '科研设备'],
         },
         {
-            id: 11, title: '牙科器械', category: 'pbr-model',
-            tags: ['PBR', '牙科', '医疗器械'], cover: 'assets/pbr-model/dental1.jpg',
-            images: ['assets/pbr-model/dental1.jpg', 'assets/pbr-model/dental2.jpg', 'assets/pbr-model/dental3.jpg'],
-            description: '牙科医疗器械PBR模型，展示精密医疗设备外观。',
-            detail: '牙科医疗器械的PBR模型制作。包含牙科治疗椅、器械台等设备的精细建模与材质表现，体现医疗设备的精密与专业。',
-            role: '独立完成', techs: ['3ds Max', 'Substance Painter', '医疗器械'],
+            id: 11, title: '材质UV展示', category: 'pbr-model',
+            tags: ['UV展开', '材质', 'PBR'], cover: 'assets/pbr-model/material-uv1.jpg',
+            images: ['assets/pbr-model/material-uv1.jpg', 'assets/pbr-model/material-uv2.jpg', 'assets/pbr-model/material-uv3.jpg', 'assets/pbr-model/material-uv4.jpg', 'assets/pbr-model/material-uv5.jpg'],
+            description: '多种材质类型的UV展开与贴图绘制展示。',
+            detail: '展示不同材质类型的UV展开布局与贴图绘制成果。涵盖金属、塑料、织物、皮革等多种材质，体现对PBR工作流程的熟练掌握。',
+            role: '独立完成', techs: ['UV展开', 'Substance Painter', 'PBR Texturing'],
         },
         // ===== Unity场景 =====
         {
@@ -657,7 +671,7 @@
             tags: ['Unity 3D', '实验室', '科研'], cover: 'assets/unity-scene/lab1.jpg',
             images: ['assets/unity-scene/lab1.jpg', 'assets/unity-scene/lab2.jpg', 'assets/unity-scene/lab3.jpg', 'assets/unity-scene/lab5.jpg', 'assets/unity-scene/lab6.jpg'],
             description: '科研实验室Unity 3D虚拟仿真场景。',
-            detail: '现代化科研实验室的Unity 3D虚拟仿真项目。场景包含各类精密仪器设备、标准实验台、通风橱等，灯光和材质模拟了实验室的专业氛围。',
+            detail: '现代化科研实验室的Unity 3D虚拟仿真项目。灯光和材质模拟了实验室的专业氛围。',
             role: '设备建模 / 场景搭建 / 渲染', techs: ['Unity 3D', '设备建模', '实验室可视化'],
         },
         {
@@ -671,43 +685,36 @@
         // ===== 产品渲染 =====
         {
             id: 15, title: '化妆品渲染', category: 'product-rendering',
-            tags: ['产品渲染', '化妆品', 'Vray'], cover: 'assets/product-render/cosmetic1.jpg',
+            tags: ['产品渲染', '化妆品', 'C4D-OC'], cover: 'assets/product-render/cosmetic1.jpg',
             images: ['assets/product-render/cosmetic1.jpg', 'assets/product-render/cosmetic2.jpg', 'assets/product-render/cosmetic3.jpg', 'assets/product-render/cosmetic4.jpg', 'assets/product-render/cosmetic5.jpg', 'assets/product-render/cosmetic6.jpg'],
             description: '化妆品产品系列渲染，展示精致包装与材质表现。',
             detail: '化妆品产品的专业级渲染系列。包含多款产品的多角度展示，通过精细的灯光布置和材质调校，展现化妆品包装的精致质感与品牌调性。',
-            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '材质表现'],
+            role: '渲染 / 材质 / 灯光', techs: ['C4D-OC', '产品渲染', '材质表现'],
         },
         {
             id: 16, title: '相机渲染', category: 'product-rendering',
-            tags: ['产品渲染', '相机', 'Vray'], cover: 'assets/product-render/camera1.jpg',
+            tags: ['产品渲染', '相机', 'Blender-Cycles'], cover: 'assets/product-render/camera1.jpg',
             images: ['assets/product-render/camera1.jpg', 'assets/product-render/camera2.jpg'],
             description: '相机产品高精度渲染，展现精密工艺。',
-            detail: '相机产品的专业级渲染作品。通过精致的灯光和材质表现，展现相机产品的设计与制造工艺，突出金属质感和精密细节。',
-            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '精密仪器'],
+            detail: '相机产品的专业级渲染作品。通过精致的灯光和材质表现，展现相机产品的设计与制造工艺，突出相机质感和精密细节。',
+            role: '渲染 / 材质 / 灯光', techs: ['Blender-Cycles', '产品渲染', '精密仪器'],
         },
-        {
-            id: 17, title: '腰带渲染', category: 'product-rendering',
-            tags: ['产品渲染', '服饰', 'Vray'], cover: 'assets/product-render/belt-white.jpg',
-            images: ['assets/product-render/belt-white.jpg', 'assets/product-render/belt-black.jpg'],
-            description: '腰带产品渲染，展示皮革材质与金属配件。',
-            detail: '腰带产品的专业渲染，包含白色和黑色两款。重点表现皮革材质的纹理、光泽以及金属扣件的质感。',
-            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '皮革材质'],
-        },
+
         {
             id: 18, title: '啤酒渲染', category: 'product-rendering',
-            tags: ['产品渲染', '饮品', 'Vray'], cover: 'assets/product-render/beer.jpg',
+            tags: ['产品渲染', '饮品', 'Blender-Cycles'], cover: 'assets/product-render/beer.jpg',
             images: ['assets/product-render/beer.jpg'],
             description: '啤酒产品渲染，展示液体与玻璃材质。',
-            detail: '啤酒产品的专业渲染，重点表现玻璃材质的通透感、液体表面的气泡细节以及冷凝水珠的真实效果。',
-            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '液体材质'],
+            detail: '啤酒产品的专业渲染，重点表现啤酒和泡沫的质感。',
+            role: '渲染 / 材质 / 灯光', techs: ['Blender-Cycles', '产品渲染', '液体材质'],
         },
         {
             id: 19, title: '花卉渲染', category: 'product-rendering',
-            tags: ['产品渲染', '花卉', 'Vray'], cover: 'assets/product-render/flower.jpg',
+            tags: ['产品渲染', '花卉', 'Blender-Cycles'], cover: 'assets/product-render/flower.jpg',
             images: ['assets/product-render/flower.jpg'],
             description: '花卉产品渲染，展示植物材质与自然光照。',
             detail: '花卉产品的艺术渲染作品。通过自然光照和精细的材质表现，展现花瓣的柔软质感与色彩层次。',
-            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '植物材质'],
+            role: '渲染 / 材质 / 灯光', techs: ['Blender-Cycles', '产品渲染', '植物材质'],
         },
         // ===== UnityShader =====
         {
@@ -734,7 +741,7 @@
             video: 'assets/video-animation/product-anim1.mp4',
             description: '产品三维展示动画，多角度呈现产品特点。',
             detail: '产品三维展示动画。包含产品的360°旋转展示、细节特写、功能演示等，配合AE后期合成，适用于产品发布和电商展示。',
-            role: '动画制作 / 渲染 / 后期', techs: ['3ds Max', 'AE', '产品动画'],
+            role: '动画制作 / 渲染 / 后期', techs: ['Blender', 'AE', '产品动画'],
         },
         {
             id: 23, title: '产品动画2', category: 'video-animation',
@@ -742,7 +749,7 @@
             video: 'assets/video-animation/product-anim2.mp4',
             description: '产品三维展示动画，多角度呈现产品特点。',
             detail: '产品三维展示动画。包含产品的360°旋转展示、细节特写、功能演示等，配合AE后期合成，适用于产品发布和电商展示。',
-            role: '动画制作 / 渲染 / 后期', techs: ['3ds Max', 'AE', '产品动画'],
+            role: '动画制作 / 渲染 / 后期', techs: ['Blender', 'AE', '产品动画'],
         },
         {
             id: 24, title: '产品动画3', category: 'video-animation',
@@ -750,23 +757,23 @@
             video: 'assets/video-animation/product-anim3.mp4',
             description: '产品三维展示动画，多角度呈现产品特点。',
             detail: '产品三维展示动画。包含产品的360°旋转展示、细节特写、功能演示等，配合AE后期合成，适用于产品发布和电商展示。',
-            role: '动画制作 / 渲染 / 后期', techs: ['3ds Max', 'AE', '产品动画'],
+            role: '动画制作 / 渲染 / 后期', techs: ['Blender', 'AE', '产品动画'],
         },
         {
             id: 25, title: '医学科普视频1', category: 'video-animation',
             tags: ['医学动画', '科普', '3D动画'], cover: 'assets/video-animation/medical-video1.mp4',
             video: 'assets/video-animation/medical-video1.mp4',
             description: '医学知识科普三维动画视频。',
-            detail: '医学知识科普的三维动画视频。以可视化方式展示医学原理、手术流程、人体结构等内容，用于医疗培训和公众科普。',
-            role: '动画制作 / 医学可视化', techs: ['3ds Max', 'AE', '医学动画'],
+            detail: '医学知识科普的三维动画视频。以可视化方式展示语言链原理，用于医疗培训和公众科普。',
+            role: '动画制作 / 医学可视化', techs: ['Blender', 'AE', '医学动画'],
         },
         {
             id: 26, title: '医学科普视频2', category: 'video-animation',
             tags: ['医学动画', '科普', '3D动画'], cover: 'assets/video-animation/medical-video2.mp4',
             video: 'assets/video-animation/medical-video2.mp4',
             description: '医学知识科普三维动画视频。',
-            detail: '医学知识科普的三维动画视频。以可视化方式展示医学原理、手术流程、人体结构等内容，用于医疗培训和公众科普。',
-            role: '动画制作 / 医学可视化', techs: ['3ds Max', 'AE', '医学动画'],
+            detail: '医学知识科普的三维动画视频。以可视化展示手术操作步骤，用于医疗培训或公众科普。',
+            role: '动画制作 / 医学可视化', techs: ['Blender', 'AE', '医学动画'],
         },
     ];
 
@@ -826,9 +833,11 @@
 
         portfolioGrid.innerHTML = toShow.map(p => {
             const isVideoCover = /\.(mp4|webm|mov|avi)$/i.test(p.cover);
+            const coverSrc = assetUrl(p.cover);
+            const fallbackSrc = p.images && p.images[0] ? assetUrl(p.images[0]) : coverSrc;
             const coverMedia = isVideoCover
-                ? `<video src="${p.cover}" muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" oncanplay="this.currentTime=2;this.pause()"></video>`
-                : `<img src="${p.cover}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" onerror="this.onerror=null; this.src='${p.images && p.images[0] ? p.images[0] : p.cover}';">`;
+                ? `<video src="${coverSrc}" muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" oncanplay="this.currentTime=2;this.pause()"></video>`
+                : `<img src="${coverSrc}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" onerror="this.onerror=null; this.src='${fallbackSrc}';">`;
             return `
             <div class="project-card apple-card cursor-pointer group" data-category="${p.category}" data-id="${p.id}" onclick="openProjectDetail(${p.id})">
                 <div class="relative overflow-hidden aspect-[4/3] bg-[#e8e8ed] dark:bg-[#2c2c2e]">
@@ -921,7 +930,7 @@
         const idx = modalCarouselState[projectId] || 0;
         const imgEl = document.getElementById(`modal-carousel-img-${projectId}`);
         const counterEl = document.getElementById(`modal-carousel-counter-${projectId}`);
-        if (imgEl) imgEl.src = images[idx];
+        if (imgEl) imgEl.src = assetUrl(images[idx]);
         if (counterEl) counterEl.textContent = `${idx + 1} / ${images.length}`;
         document.querySelectorAll(`.modal-dot-${projectId}`).forEach((dot, i) => {
             dot.className = `modal-dot-${projectId} w-2 h-2 rounded-full ${i === idx ? 'bg-white' : 'bg-white/40'} transition-all cursor-pointer`;
@@ -939,13 +948,13 @@
 
         let mediaHtml = '';
         if (project.video) {
-            mediaHtml = `<video src="${project.video}" class="w-full max-h-[60vh] object-contain" controls controlsList="nodownload" preload="auto" autoplay></video>`;
+            mediaHtml = `<video src="${assetUrl(project.video)}" class="w-full max-h-[60vh] object-contain" controls controlsList="nodownload" preload="auto" autoplay></video>`;
         } else if (hasComparison) {
-            const beforeImg = project.images[0];
-            const afterImg = project.images[1];
+            const beforeImg = assetUrl(project.images[0]);
+            const afterImg = assetUrl(project.images[1]);
             mediaHtml = `
             <div class="ba-slider" id="ba-slider-${project.id}" onmousedown="startBASlider(event, ${project.id})" ontouchstart="startBASlider(event, ${project.id})">
-                <img src="${beforeImg}" alt="${project.title} - 白膜" draggable="false">
+                <img class="ba-base-img" src="${beforeImg}" alt="${project.title} - 白膜" draggable="false">
                 <div class="ba-after" id="ba-after-${project.id}">
                     <img src="${afterImg}" alt="${project.title} - 线框" draggable="false">
                 </div>
@@ -954,7 +963,7 @@
                 <span class="ba-label ba-label-after">线框</span>
             </div>`;
         } else {
-            mediaHtml = `<img id="modal-carousel-img-${project.id}" src="${project.images && project.images.length > 0 ? project.images[0] : project.cover}" alt="${project.title}" class="max-w-full max-h-full object-contain cursor-zoom-in" onclick="openLightbox(getModalCarouselImages(${project.id}), modalCarouselState[${project.id}] || 0)">`;
+            mediaHtml = `<img id="modal-carousel-img-${project.id}" src="${assetUrl(project.images && project.images.length > 0 ? project.images[0] : project.cover)}" alt="${project.title}" class="max-w-full max-h-full object-contain cursor-zoom-in" onclick="openLightbox(getModalCarouselImages(${project.id}), modalCarouselState[${project.id}] || 0)">`;
         }
 
         modalBody.innerHTML = `
@@ -984,9 +993,8 @@
                     </div>
                     <span class="px-3 py-1.5 text-sm bg-[#e8e8ed] dark:bg-[#2c2c2e] text-[#6e6e73] dark:text-[#a1a1a6] rounded-full">${getCategoryName(project.category)}</span>
                 </div>
-                <div class="grid sm:grid-cols-2 gap-4 mb-6 p-4 bg-[var(--apple-light-bg)] dark:bg-[#000000] rounded-2xl">
-                    <div><span class="text-xs text-[#86868b]">角色</span><p class="font-medium text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">${project.role}</p></div>
-                    <div><span class="text-xs text-[#86868b]">技术栈</span><p class="font-medium text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">${project.techs.join(' / ')}</p></div>
+                <div class="mb-6 p-4 bg-[var(--apple-light-bg)] dark:bg-[#000000] rounded-2xl">
+                    <span class="text-xs text-[#86868b]">技术栈</span><p class="font-medium text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">${project.techs.join(' / ')}</p>
                 </div>
                 <p class="text-[#6e6e73] dark:text-[#a1a1a6] leading-relaxed mb-6">${project.detail}</p>
                 ${project.links && project.links.length > 0 ? `
@@ -997,6 +1005,8 @@
             </div>`;
         projectModal.classList.add('active');
         document.body.style.overflow = 'hidden';
+
+        // syncBAImages no longer needed - CSS handles alignment
     };
 
     // Before/After Slider functions
@@ -1022,6 +1032,10 @@
         document.removeEventListener('touchmove', onBASliderMove);
         document.removeEventListener('touchend', stopBASlider);
     }
+    function syncBAImages(projectId) {
+        // No longer needed - CSS handles alignment naturally
+    }
+
     function updateBASlider(e) {
         if (baActiveId === null) return;
         const slider = document.getElementById(`ba-slider-${baActiveId}`);
@@ -1071,7 +1085,7 @@
         lightboxImg.style.transform = `translate(${lbTranslateX}px, ${lbTranslateY}px) scale(${lbScale})`;
     }
     function updateLightbox() {
-        lightboxImg.src = lightboxImages[lightboxIndex];
+        lightboxImg.src = assetUrl(lightboxImages[lightboxIndex]);
         lightboxCaption.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
         resetLightboxTransform();
     }
