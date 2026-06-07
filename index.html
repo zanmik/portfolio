@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="谢江铭 - 3D建模师/渲染师个人作品集。专注于PBR模型、Unity场景、产品渲染与动画制作。">
+    <meta name="keywords" content="3D建模, PBR, Unity, 产品渲染, Substance Painter, 动画, 全景展厅">
+    <meta name="author" content="谢江铭">
+    <title>谢江铭 | 3D建模与渲染作品集</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans SC', 'system-ui', '-apple-system', 'PingFang SC', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --nav-height: 48px;
+            --apple-blue: #0071e3;
+            --apple-blue-hover: #0077ED;
+            --apple-gray: #86868b;
+            --apple-light-bg: #f5f5f7;
+            --apple-dark-bg: #1d1d1f;
+        }
+
+        html { scroll-behavior: smooth; scroll-padding-top: var(--nav-height); }
+        body { font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, 'PingFang SC', sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+        /* Apple-style scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c7c7cc; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1a6; }
+        .dark ::-webkit-scrollbar-thumb { background: #424245; }
+
+        /* Apple nav blur */
+        .apple-nav {
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            background-color: rgba(255,255,255,0.72);
+        }
+        .dark .apple-nav {
+            background-color: rgba(29,29,31,0.72);
+        }
+
+        /* Apple hero gradient */
+        .apple-hero {
+            background: radial-gradient(ellipse at 50% 80%, #1a1a2e 0%, #0d0d0d 70%);
+        }
+
+        /* Apple section title style */
+        .apple-section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+        .apple-section-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--apple-gray);
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        /* Apple card */
+        .apple-card {
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            background: #fff;
+        }
+        .dark .apple-card { background: #2c2c2e; }
+        .apple-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+        }
+        .dark .apple-card:hover {
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Apple button */
+        .apple-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border-radius: 980px;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .apple-btn-primary {
+            background: var(--apple-blue);
+            color: #fff;
+        }
+        .apple-btn-primary:hover { background: var(--apple-blue-hover); }
+        .apple-btn-secondary {
+            background: transparent;
+            color: var(--apple-blue);
+            border: 1px solid var(--apple-blue);
+        }
+        .apple-btn-secondary:hover { background: rgba(0,113,227,0.06); }
+
+        /* Filter pill */
+        .filter-pill {
+            padding: 6px 16px;
+            border-radius: 980px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            border: 1px solid #d2d2d7;
+            color: #6e6e73;
+            background: transparent;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        .dark .filter-pill { border-color: #424245; color: #a1a1a6; }
+        .filter-pill:hover { border-color: var(--apple-blue); color: var(--apple-blue); }
+        .filter-pill.active {
+            background: var(--apple-blue);
+            border-color: var(--apple-blue);
+            color: #fff;
+        }
+
+        /* Reveal animation - Apple style */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Lightbox */
+        .lightbox { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+        .lightbox.active { opacity: 1; pointer-events: all; }
+        .lightbox img { transform: scale(0.92); transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        .lightbox.active img { transform: scale(1); }
+
+        /* Modal */
+        .modal { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
+        .modal.active { opacity: 1; pointer-events: all; }
+        .modal-content { transform: translateY(40px) scale(0.96); transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        .modal.active .modal-content { transform: translateY(0) scale(1); }
+
+        /* Back to top */
+        .back-to-top { opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.3s ease; }
+        .back-to-top.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+        /* Grid/Masonry */
+        .portfolio-grid { display: grid; }
+        .portfolio-grid.grid-layout { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+        .portfolio-grid.masonry-layout { column-count: 3; column-gap: 20px; }
+        .portfolio-grid.masonry-layout > * { break-inside: avoid; margin-bottom: 20px; }
+        @media (max-width: 1024px) { .portfolio-grid.masonry-layout { column-count: 2; } }
+        @media (max-width: 640px) { .portfolio-grid.masonry-layout { column-count: 1; } .portfolio-grid.grid-layout { grid-template-columns: 1fr; } }
+
+        /* Smooth transitions */
+        body, nav, section, footer, .apple-card { transition: background-color 0.4s ease, color 0.4s ease; }
+
+        /* Tag hover */
+        .apple-tag {
+            padding: 8px 18px;
+            border-radius: 980px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            background: var(--apple-light-bg);
+            color: #6e6e73;
+            transition: all 0.25s ease;
+            cursor: default;
+        }
+        .dark .apple-tag { background: #3a3a3c; color: #a1a1a6; }
+        .apple-tag:hover { background: var(--apple-blue); color: #fff; }
+        .dark .apple-tag:hover { background: var(--apple-blue); color: #fff; }
+
+        /* Contact card */
+        .contact-card {
+            border-radius: 16px;
+            padding: 28px;
+            background: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dark .contact-card { background: #2c2c2e; }
+        .contact-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+        .dark .contact-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+
+        /* Timeline */
+        .timeline-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: var(--apple-blue);
+            border: 3px solid #fff;
+            position: absolute;
+            left: -7px; top: 2px;
+        }
+        .dark .timeline-dot { border-color: #1d1d1f; }
+
+        /* Layout toggle */
+        .layout-btn.active { background: var(--apple-blue); color: #fff; border-radius: 8px; }
+
+        /* Before/After Slider */
+        .ba-slider {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            cursor: col-resize;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .ba-slider img {
+            display: block;
+            width: 100%;
+            height: auto;
+            pointer-events: none;
+        }
+        .ba-slider .ba-after {
+            position: absolute;
+            top: 0; left: 0;
+            width: 50%; height: 100%;
+            overflow: hidden;
+        }
+        .ba-slider .ba-after img {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            width: auto;
+            max-width: none;
+        }
+        .ba-slider .ba-handle {
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 4px;
+            background: var(--apple-blue);
+            cursor: col-resize;
+            z-index: 10;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .ba-slider .ba-handle::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--apple-blue);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ba-slider .ba-handle::before {
+            content: '\f337\f337';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 12px;
+            letter-spacing: 2px;
+            z-index: 11;
+            white-space: nowrap;
+        }
+        .ba-label {
+            position: absolute;
+            bottom: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 5;
+            pointer-events: none;
+        }
+        .ba-label-before { left: 12px; }
+        .ba-label-after { right: 12px; }
+    </style>
+</head>
+<body class="bg-white dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7]">
+
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 apple-nav border-b border-black/5 dark:border-white/5" style="height: var(--nav-height);">
+        <div class="max-w-[1024px] mx-auto px-6 h-full flex items-center justify-between">
+            <a href="#hero" class="text-[#1d1d1f] dark:text-[#f5f5f7] font-semibold text-sm hover:opacity-70 transition-opacity">
+                谢江铭<span class="text-[#86868b] font-normal">.作品集</span>
+            </a>
+            <div class="hidden md:flex items-center gap-7">
+                <a href="#portfolio" class="text-[0.8125rem] text-[#6e6e73] dark:text-[#a1a1a6] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors">作品集</a>
+                <a href="#about" class="text-[0.8125rem] text-[#6e6e73] dark:text-[#a1a1a6] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors">关于我</a>
+                <a href="#contact" class="text-[0.8125rem] text-[#6e6e73] dark:text-[#a1a1a6] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors">联系方式</a>
+                <button id="theme-toggle" class="text-[#6e6e73] dark:text-[#a1a1a6] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors" aria-label="切换主题">
+                    <i class="fa-solid fa-moon dark:hidden text-sm"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline-block text-sm"></i>
+                </button>
+            </div>
+            <div class="flex items-center gap-3 md:hidden">
+                <button id="theme-toggle-mobile" class="text-[#6e6e73] dark:text-[#a1a1a6]" aria-label="切换主题">
+                    <i class="fa-solid fa-moon dark:hidden text-sm"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline-block text-sm"></i>
+                </button>
+                <button id="mobile-menu-btn" class="text-[#1d1d1f] dark:text-[#f5f5f7]" aria-label="菜单">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden fixed inset-x-0 top-[var(--nav-height)] apple-nav border-b border-black/5 dark:border-white/5 shadow-lg transform -translate-y-[calc(100%+var(--nav-height))] opacity-0 pointer-events-none transition-all duration-300">
+            <div class="flex flex-col p-6 gap-4">
+                <a href="#portfolio" class="mobile-nav-link text-[1.0625rem] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">作品集</a>
+                <a href="#about" class="mobile-nav-link text-[1.0625rem] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">关于我</a>
+                <a href="#contact" class="mobile-nav-link text-[1.0625rem] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">联系方式</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==================== HERO ==================== -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center apple-hero overflow-hidden">
+        <div class="absolute inset-0 opacity-30">
+            <div class="absolute top-1/3 left-1/3 w-[500px] h-[500px] bg-[#0071e3] rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#bf5af2] rounded-full blur-[100px]"></div>
+        </div>
+        <div class="relative z-10 max-w-[980px] mx-auto px-6 text-center pt-[var(--nav-height)]">
+            <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-bold text-white leading-[1.05] tracking-tight mb-6">
+                你好，我是<br>
+                <span class="bg-gradient-to-r from-[#2997ff] via-[#5ac8fa] to-[#bf5af2] bg-clip-text text-transparent">谢江铭</span>
+            </h1>
+            <p class="text-[clamp(1rem,2.5vw,1.3125rem)] text-[#a1a1a6] max-w-[600px] mx-auto mb-10 leading-relaxed font-light">
+                具备全流程制作能力，擅长硬表面建模、写实PBR流程、Unity室内场景搭建。能够制作骨骼绑定角色动画和使用AE制作宣传视频。掌握多种视觉表现形式的模型处理，效果图、动画、全景图。
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="#portfolio" class="apple-btn apple-btn-primary">
+                    查看作品 <i class="fa-solid fa-arrow-down text-xs"></i>
+                </a>
+                <a href="#contact" class="apple-btn apple-btn-secondary" style="color:#fff; border-color:rgba(255,255,255,0.3);">
+                    联系我 <i class="fa-solid fa-envelope text-xs"></i>
+                </a>
+            </div>
+        </div>
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2">
+            <div class="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center p-1.5">
+                <div class="w-1 h-2.5 bg-white/40 rounded-full animate-bounce"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== PORTFOLIO ==================== -->
+    <section id="portfolio" class="py-24 lg:py-32 bg-[var(--apple-light-bg)] dark:bg-[#000000]">
+        <div class="max-w-[1200px] mx-auto px-6">
+            <div class="text-center mb-14 reveal">
+                <h2 class="apple-section-title text-[#1d1d1f] dark:text-[#f5f5f7]">作品展示</h2>
+                <p class="apple-section-subtitle mt-3 max-w-[600px] mx-auto">
+                    涵盖3D建模、PBR材质、Unity场景搭建、产品渲染与动画制作等多个领域
+                </p>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-10 reveal">
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-pill active" data-filter="pbr-model">PBR模型</button>
+                    <button class="filter-pill" data-filter="unity-scene">Unity场景</button>
+                    <button class="filter-pill" data-filter="product-rendering">产品渲染</button>
+                    <button class="filter-pill" data-filter="video-animation">视频动画</button>
+                    <button class="filter-pill" data-filter="character-animation">角色绑定及动画</button>
+                    <button class="filter-pill" data-filter="unity-shader">UnityShader</button>
+                    <button class="filter-pill" data-filter="3d-modeling">3D建模</button>
+                </div>
+                <div class="flex gap-1 bg-[#e8e8ed] dark:bg-[#2c2c2e] rounded-lg p-1">
+                    <button id="grid-layout-btn" class="layout-btn active p-2 text-[#6e6e73] dark:text-[#a1a1a6] transition-all" data-layout="grid" title="网格布局">
+                        <i class="fa-solid fa-table-cells text-sm"></i>
+                    </button>
+                    <button id="masonry-layout-btn" class="layout-btn p-2 text-[#6e6e73] dark:text-[#a1a1a6] transition-all" data-layout="masonry" title="瀑布流布局">
+                        <i class="fa-solid fa-water text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="portfolio-grid" class="portfolio-grid grid-layout reveal"></div>
+
+            <div class="text-center mt-12 reveal">
+                <button id="load-more-btn" class="apple-btn apple-btn-secondary">
+                    加载更多 <i class="fa-solid fa-chevron-down text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== ABOUT ==================== -->
+    <section id="about" class="py-24 lg:py-32 bg-white dark:bg-[#000000]">
+        <div class="max-w-[980px] mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <h2 class="apple-section-title text-[#1d1d1f] dark:text-[#f5f5f7]">关于我</h2>
+                <p class="apple-section-subtitle mt-3 max-w-[600px] mx-auto">
+                    6年3D设计经验，热爱用技术创造视觉之美
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+                <!-- Work Experience -->
+                <div class="reveal">
+                    <h3 class="text-lg font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] mb-6">工作经历</h3>
+                    <div class="space-y-8">
+                        <div class="relative pl-7 pb-8 border-l-2 border-[#e8e8ed] dark:border-[#2c2c2e]">
+                            <div class="timeline-dot"></div>
+                            <p class="text-xs font-medium text-[var(--apple-blue)] mb-1">2022.05 — 至今</p>
+                            <h4 class="text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">广州唯华科技有限公司</h4>
+                            <p class="text-sm text-[var(--apple-blue)] font-medium mb-2">3D设计师</p>
+                            <p class="text-sm text-[#6e6e73] dark:text-[#a1a1a6] leading-relaxed">
+                                负责公司3D相关的全部工作，包括建模、UV、贴图绘制、骨骼绑定、动画制作、Unity整合模型搭建场景、烘焙和优化，全流程独立完成。从零构建企业级虚拟仿真实验三维工作流，牵头完成5个大型项目（累计金额超百万）。
+                            </p>
+                        </div>
+                        <div class="relative pl-7 border-l-2 border-[#e8e8ed] dark:border-[#2c2c2e]">
+                            <div class="timeline-dot"></div>
+                            <p class="text-xs font-medium text-[var(--apple-blue)] mb-1">2019.07 — 2022.05</p>
+                            <h4 class="text-base font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">广州商迪科技有限公司</h4>
+                            <p class="text-sm text-[var(--apple-blue)] font-medium mb-2">3D设计师</p>
+                            <p class="text-sm text-[#6e6e73] dark:text-[#a1a1a6] leading-relaxed">
+                                独立完成从3DMAX建模到Vray渲染产品效果图、AE合成产品动画一套流程。负责三维建模、产品渲染、宣传动画，模型类型以家具、工厂设备、电商3C为主。连续两年蝉联公司模型部业绩冠军，入职一年晋升小组长，带领5人实习生团队。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Education & Tags -->
+                <div class="space-y-12 reveal">
+                    <div>
+                        <h3 class="text-lg font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] mb-6">教育经历</h3>
+                        <div class="contact-card">
+                            <h4 class="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">潮汕职业技术学院</h4>
+                            <p class="text-sm text-[#6e6e73] dark:text-[#a1a1a6] mt-1">动画设计 · 大专 · 2017 — 2019</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] mb-6">技术标签</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="apple-tag">硬表面建模</span>
+                            <span class="apple-tag">PBR流程</span>
+                            <span class="apple-tag">Unity 3D</span>
+                            <span class="apple-tag">3ds Max</span>
+                            <span class="apple-tag">Blender</span>
+                            <span class="apple-tag">Vray渲染</span>
+                            <span class="apple-tag">骨骼绑定</span>
+                            <span class="apple-tag">AE后期</span>
+                            <span class="apple-tag">产品渲染</span>
+                            <span class="apple-tag">全景图</span>
+                            <span class="apple-tag">虚拟仿真</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== CONTACT ==================== -->
+    <section id="contact" class="py-24 lg:py-32 bg-[var(--apple-light-bg)] dark:bg-[#000000]">
+        <div class="max-w-[980px] mx-auto px-6">
+            <div class="text-center mb-14 reveal">
+                <h2 class="apple-section-title text-[#1d1d1f] dark:text-[#f5f5f7]">联系方式</h2>
+                <p class="apple-section-subtitle mt-3 max-w-[600px] mx-auto">
+                    期待加入您的团队，如感兴趣，欢迎联系
+                </p>
+            </div>
+            <div class="grid sm:grid-cols-3 gap-5 max-w-[800px] mx-auto reveal">
+                <div class="contact-card text-center">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--apple-blue)]/10 flex items-center justify-center">
+                        <i class="fa-solid fa-envelope text-[var(--apple-blue)]"></i>
+                    </div>
+                    <h4 class="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">邮箱</h4>
+                    <a href="mailto:823797790@qq.com" class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1 block hover:text-[var(--apple-blue)] transition-colors">823797790@qq.com</a>
+                </div>
+                <div class="contact-card text-center">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--apple-blue)]/10 flex items-center justify-center">
+                        <i class="fa-brands fa-weixin text-[var(--apple-blue)]"></i>
+                    </div>
+                    <h4 class="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">微信号</h4>
+                    <p class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1">17620160523</p>
+                </div>
+                <div class="contact-card text-center">
+                    <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--apple-blue)]/10 flex items-center justify-center">
+                        <i class="fa-solid fa-phone text-[var(--apple-blue)]"></i>
+                    </div>
+                    <h4 class="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">手机号</h4>
+                    <a href="tel:17620160523" class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1 block hover:text-[var(--apple-blue)] transition-colors">17620160523</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="bg-[var(--apple-light-bg)] dark:bg-[#000000] border-t border-[#e8e8ed] dark:border-[#2c2c2e] py-8">
+        <div class="max-w-[980px] mx-auto px-6 text-center">
+            <p class="text-xs text-[#6e6e73] dark:text-[#a1a1a6]">
+                &copy; 2026 谢江铭. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- ==================== MODAL ==================== -->
+    <div id="project-modal" class="modal fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="modal-content relative bg-white dark:bg-[#1c1c1e] rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <button id="modal-close" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-[#6e6e73] dark:text-[#a1a1a6] hover:bg-black/10 dark:hover:bg-white/20 transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modal-body" class="flex flex-col flex-1 min-h-0"></div>
+        </div>
+    </div>
+
+    <!-- ==================== LIGHTBOX ==================== -->
+    <div id="lightbox" class="lightbox fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+        <button id="lightbox-close" class="absolute top-6 right-6 z-[120] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center text-gray-300 hover:bg-black/60 hover:text-white transition-all">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <button id="lightbox-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-[120] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center text-gray-300 hover:bg-black/60 hover:text-white transition-all">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-[120] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center text-gray-300 hover:bg-black/60 hover:text-white transition-all">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <div class="relative w-full h-full flex items-center justify-center overflow-hidden" id="lightbox-img-container">
+            <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[85vh] rounded-xl object-contain cursor-grab active:cursor-grabbing" style="transform-origin: center center; transition: transform 0.2s ease-out;">
+        </div>
+        <p id="lightbox-caption" class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm z-[120]"></p>
+        <div class="absolute bottom-16 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/80 text-xs z-[120]">
+            滚轮缩放 / 右键拖拽移动 / 双击还原
+        </div>
+    </div>
+
+    <!-- ==================== BACK TO TOP ==================== -->
+    <button id="back-to-top" class="back-to-top fixed bottom-8 right-8 z-40 w-10 h-10 rounded-full bg-[#1d1d1f] dark:bg-white text-white dark:text-[#1d1d1f] shadow-lg flex items-center justify-center hover:opacity-80 transition-opacity" aria-label="回到顶部">
+        <i class="fa-solid fa-arrow-up text-xs"></i>
+    </button>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script>
+    const projects = [
+        // ===== 3D建模 =====
+        {
+            id: 1, title: '沙发建模', category: '3d-modeling',
+            tags: ['硬表面建模', '3ds Max', '家具'], cover: 'assets/3d-modeling/sofa-white.jpg',
+            images: ['assets/3d-modeling/sofa-white.jpg', 'assets/3d-modeling/sofa-wireframe.jpg'],
+            description: '沙发家具硬表面建模，展示白膜与线框结构。',
+            detail: '使用3ds Max完成的沙发家具硬表面建模作品。包含白膜渲染展示和线框图，体现模型拓扑结构与布线规范。',
+            role: '独立完成', techs: ['3ds Max', '硬表面建模', '拓扑优化'],
+        },
+        {
+            id: 2, title: '单人沙发椅建模', category: '3d-modeling',
+            tags: ['硬表面建模', '3ds Max', '家具'], cover: 'assets/3d-modeling/sofa-chair-white.jpg',
+            images: ['assets/3d-modeling/sofa-chair-white.jpg', 'assets/3d-modeling/sofa-chair-wireframe.jpg'],
+            description: '单人沙发椅硬表面建模，展示白膜与线框结构。',
+            detail: '单人沙发椅的硬表面建模作品，从参考图到成品模型的完整流程。包含白膜展示和线框图，展现精准的模型比例与细节处理。',
+            role: '独立完成', techs: ['3ds Max', '硬表面建模', '家具设计'],
+        },
+        {
+            id: 3, title: '电子器件建模', category: '3d-modeling',
+            tags: ['硬表面建模', '3ds Max', '电子产品'], cover: 'assets/3d-modeling/electronics-white.jpg',
+            images: ['assets/3d-modeling/electronics-white.jpg', 'assets/3d-modeling/electronics-wireframe.jpg'],
+            description: '电子器件硬表面建模，展示白膜与线框结构。',
+            detail: '电子器件产品的硬表面建模，注重细节精度与工业标准。包含白膜渲染和线框展示，适合产品可视化与3D打印需求。',
+            role: '独立完成', techs: ['3ds Max', '硬表面建模', '工业设计'],
+        },
+        {
+            id: 4, title: '椅子建模', category: '3d-modeling',
+            tags: ['硬表面建模', '3ds Max', '家具'], cover: 'assets/3d-modeling/chair-white.jpg',
+            images: ['assets/3d-modeling/chair-white.jpg', 'assets/3d-modeling/chair-wireframe.jpg'],
+            description: '椅子硬表面建模，展示白膜与线框结构。',
+            detail: '椅子产品的硬表面建模作品，展现复杂曲面与结构细节的建模能力。包含白膜和线框两种展示方式。',
+            role: '独立完成', techs: ['3ds Max', '硬表面建模', '曲面建模'],
+        },
+        // ===== PBR模型 =====
+        {
+            id: 5, title: 'CT设备', category: 'pbr-model',
+            tags: ['PBR', '医疗器械', 'Substance Painter'], cover: 'assets/pbr-model/ct.jpg',
+            images: ['assets/pbr-model/ct.jpg', 'assets/pbr-model/ct-exploded.jpg', 'assets/pbr-model/ct-structure.jpg'],
+            description: 'CT扫描设备PBR全流程制作，含外观与内部结构展示。',
+            detail: 'CT医疗设备的PBR全流程模型制作。从建模、UV展开、烘焙到Substance Painter贴图绘制，包含外观渲染、内部拆解图和结构图，呈现照片级真实效果。',
+            role: '独立完成', techs: ['3ds Max', 'Substance Painter', 'PBR Workflow'],
+        },
+        {
+            id: 6, title: 'DR设备', category: 'pbr-model',
+            tags: ['PBR', '医疗器械', 'Substance Painter'], cover: 'assets/pbr-model/dr.jpg',
+            images: ['assets/pbr-model/dr.jpg', 'assets/pbr-model/dr1.jpg', 'assets/pbr-model/dr2.jpg'],
+            description: 'DR数字化X射线设备PBR模型制作。',
+            detail: 'DR（数字化X射线摄影系统）设备的PBR模型制作。包含多角度外观展示，体现医疗设备的精密质感与专业外观。',
+            role: '独立完成', techs: ['3ds Max', 'Substance Painter', 'PBR Workflow'],
+        },
+        {
+            id: 7, title: '材质UV展示', category: 'pbr-model',
+            tags: ['UV展开', '材质', 'PBR'], cover: 'assets/pbr-model/material-uv1.jpg',
+            images: ['assets/pbr-model/material-uv1.jpg', 'assets/pbr-model/material-uv2.jpg', 'assets/pbr-model/material-uv3.jpg', 'assets/pbr-model/material-uv4.jpg', 'assets/pbr-model/material-uv5.jpg'],
+            description: '多种材质类型的UV展开与贴图绘制展示。',
+            detail: '展示不同材质类型的UV展开布局与贴图绘制成果。涵盖金属、塑料、织物、皮革等多种材质，体现对PBR工作流程的熟练掌握。',
+            role: '独立完成', techs: ['UV展开', 'Substance Painter', 'PBR Texturing'],
+        },
+        {
+            id: 8, title: '高效液相色谱-质谱系统', category: 'pbr-model',
+            tags: ['PBR', '科研设备', 'Substance Painter'], cover: 'assets/pbr-model/lcms2.jpg',
+            images: ['assets/pbr-model/lcms2.jpg', 'assets/pbr-model/lcms3.jpg'],
+            description: '高效液相色谱-四极杆飞行时间质谱联用系统PBR模型。',
+            detail: '高效液相色谱-四极杆飞行时间质谱联用系统的PBR模型制作。清晰展示各部件结构和整体外观，用于产品宣传和技术文档。',
+            role: '独立完成', techs: ['3ds Max', 'Substance Painter', '科研设备'],
+        },
+        {
+            id: 9, title: '激光共聚焦显微镜', category: 'pbr-model',
+            tags: ['PBR', '显微镜', '科研设备'], cover: 'assets/pbr-model/confocal-2.jpg',
+            images: ['assets/pbr-model/confocal-2.jpg', 'assets/pbr-model/confocal-4.jpg'],
+            description: '激光共聚焦显微镜PBR模型，展示精密科研仪器外观。',
+            detail: '激光共聚焦显微镜的PBR模型作品。该设备结构复杂，包含精密光学系统、电动载物台、激光模块等，着重表现仪器的高级质感和科技感。',
+            role: '独立完成', techs: ['3ds Max', 'Substance Painter', '精密仪器'],
+        },
+        {
+            id: 10, title: '扫描电镜', category: 'pbr-model',
+            tags: ['PBR', '显微镜', '科研设备'], cover: 'assets/pbr-model/sem1.jpg',
+            images: ['assets/pbr-model/sem1.jpg', 'assets/pbr-model/sem2.jpg'],
+            description: '扫描电子显微镜PBR模型制作。',
+            detail: '扫描电子显微镜（SEM）的PBR模型制作。展示设备的外观细节与专业质感，适用于科研仪器产品展示。',
+            role: '独立完成', techs: ['3ds Max', 'Substance Painter', '科研设备'],
+        },
+        {
+            id: 11, title: '牙科器械', category: 'pbr-model',
+            tags: ['PBR', '牙科', '医疗器械'], cover: 'assets/pbr-model/dental1.jpg',
+            images: ['assets/pbr-model/dental1.jpg', 'assets/pbr-model/dental2.jpg', 'assets/pbr-model/dental3.jpg'],
+            description: '牙科医疗器械PBR模型，展示精密医疗设备外观。',
+            detail: '牙科医疗器械的PBR模型制作。包含牙科治疗椅、器械台等设备的精细建模与材质表现，体现医疗设备的精密与专业。',
+            role: '独立完成', techs: ['3ds Max', 'Substance Painter', '医疗器械'],
+        },
+        // ===== Unity场景 =====
+        {
+            id: 12, title: '户外公园场景', category: 'unity-scene',
+            tags: ['Unity 3D', '场景搭建', '户外'], cover: 'assets/unity-scene/park1.jpg',
+            video: 'assets/unity-scene/park-video.mp4',
+            images: ['assets/unity-scene/park1.jpg', 'assets/unity-scene/park2.jpg', 'assets/unity-scene/park3.jpg'],
+            description: 'Unity 3D户外公园场景搭建，含场景漫游视频。',
+            detail: '使用Unity 3D引擎搭建的户外公园场景。包含自然景观、植被、步道等元素，支持场景漫游，适用于虚拟仿真与展示。',
+            role: '场景搭建 / 灯光 / 渲染', techs: ['Unity 3D', '场景搭建', '光照系统'],
+        },
+        {
+            id: 13, title: '实验室场景', category: 'unity-scene',
+            tags: ['Unity 3D', '实验室', '科研'], cover: 'assets/unity-scene/lab1.jpg',
+            images: ['assets/unity-scene/lab1.jpg', 'assets/unity-scene/lab2.jpg', 'assets/unity-scene/lab3.jpg', 'assets/unity-scene/lab5.jpg', 'assets/unity-scene/lab6.jpg'],
+            description: '科研实验室Unity 3D虚拟仿真场景。',
+            detail: '现代化科研实验室的Unity 3D虚拟仿真项目。场景包含各类精密仪器设备、标准实验台、通风橱等，灯光和材质模拟了实验室的专业氛围。',
+            role: '设备建模 / 场景搭建 / 渲染', techs: ['Unity 3D', '设备建模', '实验室可视化'],
+        },
+        {
+            id: 14, title: '医院场景', category: 'unity-scene',
+            tags: ['Unity 3D', '医院', '数字孪生'], cover: 'assets/unity-scene/hospital-lobby.jpg',
+            images: ['assets/unity-scene/hospital-lobby.jpg', 'assets/unity-scene/hospital-ward.jpg', 'assets/unity-scene/hospital-dental1.jpg', 'assets/unity-scene/hospital-dental2.jpg', 'assets/unity-scene/hospital-imaging.jpg', 'assets/unity-scene/hospital-clinic.jpg', 'assets/unity-scene/hospital-pharmacy.jpg', 'assets/unity-scene/hospital-icu.jpg'],
+            description: '大型医院Unity 3D虚拟场景，涵盖多个科室区域。',
+            detail: '综合性医院的Unity 3D虚拟仿真项目，包含完整的医院功能分区：门诊大厅、各科室诊室、住院部、急诊区、重症监护室、中药房等。场景规模大，细节丰富，可用于医疗培训和虚拟导览。',
+            role: '场景搭建 / 模型整合 / 优化', techs: ['Unity 3D', '大场景优化', '数字孪生'],
+        },
+        // ===== 产品渲染 =====
+        {
+            id: 15, title: '化妆品渲染', category: 'product-rendering',
+            tags: ['产品渲染', '化妆品', 'Vray'], cover: 'assets/product-render/cosmetic1.jpg',
+            images: ['assets/product-render/cosmetic1.jpg', 'assets/product-render/cosmetic2.jpg', 'assets/product-render/cosmetic3.jpg', 'assets/product-render/cosmetic4.jpg', 'assets/product-render/cosmetic5.jpg', 'assets/product-render/cosmetic6.jpg'],
+            description: '化妆品产品系列渲染，展示精致包装与材质表现。',
+            detail: '化妆品产品的专业级渲染系列。包含多款产品的多角度展示，通过精细的灯光布置和材质调校，展现化妆品包装的精致质感与品牌调性。',
+            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '材质表现'],
+        },
+        {
+            id: 16, title: '相机渲染', category: 'product-rendering',
+            tags: ['产品渲染', '相机', 'Vray'], cover: 'assets/product-render/camera1.jpg',
+            images: ['assets/product-render/camera1.jpg', 'assets/product-render/camera2.jpg'],
+            description: '相机产品高精度渲染，展现精密工艺。',
+            detail: '相机产品的专业级渲染作品。通过精致的灯光和材质表现，展现相机产品的设计与制造工艺，突出金属质感和精密细节。',
+            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '精密仪器'],
+        },
+        {
+            id: 17, title: '腰带渲染', category: 'product-rendering',
+            tags: ['产品渲染', '服饰', 'Vray'], cover: 'assets/product-render/belt-white.jpg',
+            images: ['assets/product-render/belt-white.jpg', 'assets/product-render/belt-black.jpg'],
+            description: '腰带产品渲染，展示皮革材质与金属配件。',
+            detail: '腰带产品的专业渲染，包含白色和黑色两款。重点表现皮革材质的纹理、光泽以及金属扣件的质感。',
+            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '皮革材质'],
+        },
+        {
+            id: 18, title: '啤酒渲染', category: 'product-rendering',
+            tags: ['产品渲染', '饮品', 'Vray'], cover: 'assets/product-render/beer.jpg',
+            images: ['assets/product-render/beer.jpg'],
+            description: '啤酒产品渲染，展示液体与玻璃材质。',
+            detail: '啤酒产品的专业渲染，重点表现玻璃材质的通透感、液体表面的气泡细节以及冷凝水珠的真实效果。',
+            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '液体材质'],
+        },
+        {
+            id: 19, title: '花卉渲染', category: 'product-rendering',
+            tags: ['产品渲染', '花卉', 'Vray'], cover: 'assets/product-render/flower.jpg',
+            images: ['assets/product-render/flower.jpg'],
+            description: '花卉产品渲染，展示植物材质与自然光照。',
+            detail: '花卉产品的艺术渲染作品。通过自然光照和精细的材质表现，展现花瓣的柔软质感与色彩层次。',
+            role: '渲染 / 材质 / 灯光', techs: ['Vray', '产品渲染', '植物材质'],
+        },
+        // ===== UnityShader =====
+        {
+            id: 20, title: 'Shader特效', category: 'unity-shader',
+            tags: ['Unity', 'Shader Graph', '特效'], cover: 'assets/unity-shader/shader-graph.mp4',
+            video: 'assets/unity-shader/shader-graph.mp4',
+            description: 'Unity Shader Graph特效制作展示。',
+            detail: '使用Unity Shader Graph制作的视觉特效展示。包含多种 shader 效果的实时渲染演示，体现对图形编程和实时渲染的掌握。',
+            role: 'Shader开发 / 特效制作', techs: ['Unity', 'Shader Graph', '实时渲染'],
+        },
+        // ===== 角色绑定及动画 =====
+        {
+            id: 21, title: '角色绑定及动画', category: 'character-animation',
+            tags: ['角色动画', '骨骼绑定', '3ds Max'], cover: 'assets/character-rig/character-rig.mp4',
+            video: 'assets/character-rig/character-rig.mp4',
+            description: '角色骨骼绑定与动画制作展示。',
+            detail: '角色骨骼绑定与动画制作作品。展示从骨骼搭建、权重绘制到动画制作的完整流程，包含角色行走、动作等动画片段。',
+            role: '骨骼绑定 / 动画制作', techs: ['3ds Max', '骨骼绑定', '角色动画'],
+        },
+        // ===== 视频动画 =====
+        {
+            id: 22, title: '产品动画1', category: 'video-animation',
+            tags: ['产品动画', '3D动画', 'AE后期'], cover: 'assets/video-animation/product-anim1.mp4',
+            video: 'assets/video-animation/product-anim1.mp4',
+            description: '产品三维展示动画，多角度呈现产品特点。',
+            detail: '产品三维展示动画。包含产品的360°旋转展示、细节特写、功能演示等，配合AE后期合成，适用于产品发布和电商展示。',
+            role: '动画制作 / 渲染 / 后期', techs: ['3ds Max', 'AE', '产品动画'],
+        },
+        {
+            id: 23, title: '产品动画2', category: 'video-animation',
+            tags: ['产品动画', '3D动画', 'AE后期'], cover: 'assets/video-animation/product-anim2-cover.jpg',
+            video: 'assets/video-animation/product-anim2.mp4',
+            description: '产品三维展示动画，多角度呈现产品特点。',
+            detail: '产品三维展示动画。包含产品的360°旋转展示、细节特写、功能演示等，配合AE后期合成，适用于产品发布和电商展示。',
+            role: '动画制作 / 渲染 / 后期', techs: ['3ds Max', 'AE', '产品动画'],
+        },
+        {
+            id: 24, title: '产品动画3', category: 'video-animation',
+            tags: ['产品动画', '3D动画', 'AE后期'], cover: 'assets/video-animation/product-anim3.mp4',
+            video: 'assets/video-animation/product-anim3.mp4',
+            description: '产品三维展示动画，多角度呈现产品特点。',
+            detail: '产品三维展示动画。包含产品的360°旋转展示、细节特写、功能演示等，配合AE后期合成，适用于产品发布和电商展示。',
+            role: '动画制作 / 渲染 / 后期', techs: ['3ds Max', 'AE', '产品动画'],
+        },
+        {
+            id: 25, title: '医学科普视频1', category: 'video-animation',
+            tags: ['医学动画', '科普', '3D动画'], cover: 'assets/video-animation/medical-video1.mp4',
+            video: 'assets/video-animation/medical-video1.mp4',
+            description: '医学知识科普三维动画视频。',
+            detail: '医学知识科普的三维动画视频。以可视化方式展示医学原理、手术流程、人体结构等内容，用于医疗培训和公众科普。',
+            role: '动画制作 / 医学可视化', techs: ['3ds Max', 'AE', '医学动画'],
+        },
+        {
+            id: 26, title: '医学科普视频2', category: 'video-animation',
+            tags: ['医学动画', '科普', '3D动画'], cover: 'assets/video-animation/medical-video2.mp4',
+            video: 'assets/video-animation/medical-video2.mp4',
+            description: '医学知识科普三维动画视频。',
+            detail: '医学知识科普的三维动画视频。以可视化方式展示医学原理、手术流程、人体结构等内容，用于医疗培训和公众科普。',
+            role: '动画制作 / 医学可视化', techs: ['3ds Max', 'AE', '医学动画'],
+        },
+    ];
+
+    /* ========== DOM REFS ========== */
+    const portfolioGrid = document.getElementById('portfolio-grid');
+    const filterBtns = document.querySelectorAll('.filter-pill');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const backToTop = document.getElementById('back-to-top');
+    const navbar = document.getElementById('navbar');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const projectModal = document.getElementById('project-modal');
+    const modalBody = document.getElementById('modal-body');
+    const modalClose = document.getElementById('modal-close');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+    const gridLayoutBtn = document.getElementById('grid-layout-btn');
+    const masonryLayoutBtn = document.getElementById('masonry-layout-btn');
+
+    let currentFilter = 'pbr-model';
+    let visibleCount = 6;
+    let lightboxImages = [];
+    let lightboxIndex = 0;
+    let currentLayout = 'grid';
+
+    function init() {
+        renderProjects();
+        setupFilters();
+        setupLayoutToggle();
+        setupLoadMore();
+        setupMobileMenu();
+        setupModal();
+        setupLightbox();
+        setupBackToTop();
+        setupThemeToggle();
+        setupRevealAnimations();
+        setupNavScroll();
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    }
+
+    function getCategoryName(cat) {
+        const map = { '3d-modeling': '3D建模', 'pbr-model': 'PBR模型', 'unity-scene': 'Unity场景', 'product-rendering': '产品渲染', 'video-animation': '视频动画', 'character-animation': '角色绑定及动画', 'unity-shader': 'UnityShader' };
+        return map[cat] || cat;
+    }
+
+    function renderProjects(filter = currentFilter, count = visibleCount) {
+        const filtered = filter === 'all' ? projects : projects.filter(p => p.category === filter);
+        const toShow = filtered.slice(0, count);
+        loadMoreBtn.style.display = filtered.length > count ? 'inline-flex' : 'none';
+
+        portfolioGrid.innerHTML = toShow.map(p => {
+            const isVideoCover = /\.(mp4|webm|mov|avi)$/i.test(p.cover);
+            const coverMedia = isVideoCover
+                ? `<video src="${p.cover}" muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" oncanplay="this.currentTime=2;this.pause()"></video>`
+                : `<img src="${p.cover}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" onerror="this.onerror=null; this.src='${p.images && p.images[0] ? p.images[0] : p.cover}';">`;
+            return `
+            <div class="project-card apple-card cursor-pointer group" data-category="${p.category}" data-id="${p.id}" onclick="openProjectDetail(${p.id})">
+                <div class="relative overflow-hidden aspect-[4/3] bg-[#e8e8ed] dark:bg-[#2c2c2e]">
+                    ${coverMedia}
+                    ${p.video ? `<div class="absolute inset-0 flex items-center justify-center"><div class="w-14 h-14 rounded-full bg-white/80 dark:bg-black/50 flex items-center justify-center text-[var(--apple-blue)] group-hover:scale-110 transition-transform"><i class="fa-solid fa-play text-lg ml-0.5"></i></div></div>` : ''}
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
+                        <div class="flex flex-wrap gap-1.5">
+                            ${p.tags.slice(0, 3).map(t => `<span class="px-2 py-0.5 text-[0.6875rem] font-medium bg-white/20 backdrop-blur-sm text-white rounded-md">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                    <span class="absolute top-3 left-3 px-2.5 py-1 text-[0.6875rem] font-semibold bg-[var(--apple-blue)] text-white rounded-full">${getCategoryName(p.category)}</span>
+                </div>
+                <div class="p-5">
+                    <h3 class="text-[0.9375rem] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] mb-1.5 line-clamp-1 group-hover:text-[var(--apple-blue)] transition-colors">${p.title}</h3>
+                    <p class="text-[0.8125rem] text-[#6e6e73] dark:text-[#a1a1a6] line-clamp-2 mb-3">${p.description}</p>
+                    <span class="text-[var(--apple-blue)] text-[0.8125rem] font-medium opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1">
+                        查看详情 <i class="fa-solid fa-chevron-right text-[0.625rem]"></i>
+                    </span>
+                </div>
+            </div>`;
+        }).join('');
+
+        setTimeout(() => setupRevealAnimations(), 100);
+    }
+
+    function setupFilters() {
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                visibleCount = 6;
+                renderProjects(currentFilter, visibleCount);
+            });
+        });
+    }
+
+    function setupLayoutToggle() {
+        gridLayoutBtn.addEventListener('click', () => {
+            currentLayout = 'grid';
+            portfolioGrid.classList.remove('masonry-layout');
+            portfolioGrid.classList.add('grid-layout');
+            gridLayoutBtn.classList.add('active');
+            masonryLayoutBtn.classList.remove('active');
+        });
+        masonryLayoutBtn.addEventListener('click', () => {
+            currentLayout = 'masonry';
+            portfolioGrid.classList.remove('grid-layout');
+            portfolioGrid.classList.add('masonry-layout');
+            masonryLayoutBtn.classList.add('active');
+            gridLayoutBtn.classList.remove('active');
+        });
+    }
+
+    function setupLoadMore() {
+        loadMoreBtn.addEventListener('click', () => {
+            visibleCount += 6;
+            renderProjects(currentFilter, visibleCount);
+        });
+    }
+
+    // Modal carousel functions
+    const modalCarouselState = {};
+    window.getModalCarouselImages = function(projectId) {
+        const project = projects.find(p => p.id === projectId);
+        return project ? project.images : [];
+    };
+    window.modalCarouselPrev = function(projectId) {
+        const images = getModalCarouselImages(projectId);
+        if (images.length <= 1) return;
+        if (!modalCarouselState[projectId]) modalCarouselState[projectId] = 0;
+        modalCarouselState[projectId] = (modalCarouselState[projectId] - 1 + images.length) % images.length;
+        updateModalCarousel(projectId);
+    };
+    window.modalCarouselNext = function(projectId) {
+        const images = getModalCarouselImages(projectId);
+        if (images.length <= 1) return;
+        if (!modalCarouselState[projectId]) modalCarouselState[projectId] = 0;
+        modalCarouselState[projectId] = (modalCarouselState[projectId] + 1) % images.length;
+        updateModalCarousel(projectId);
+    };
+    window.modalCarouselGoTo = function(projectId, index) {
+        const images = getModalCarouselImages(projectId);
+        if (index < 0 || index >= images.length) return;
+        modalCarouselState[projectId] = index;
+        updateModalCarousel(projectId);
+    };
+    function updateModalCarousel(projectId) {
+        const images = getModalCarouselImages(projectId);
+        const idx = modalCarouselState[projectId] || 0;
+        const imgEl = document.getElementById(`modal-carousel-img-${projectId}`);
+        const counterEl = document.getElementById(`modal-carousel-counter-${projectId}`);
+        if (imgEl) imgEl.src = images[idx];
+        if (counterEl) counterEl.textContent = `${idx + 1} / ${images.length}`;
+        document.querySelectorAll(`.modal-dot-${projectId}`).forEach((dot, i) => {
+            dot.className = `modal-dot-${projectId} w-2 h-2 rounded-full ${i === idx ? 'bg-white' : 'bg-white/40'} transition-all cursor-pointer`;
+        });
+    }
+
+    window.openProjectDetail = function(id) {
+        const project = projects.find(p => p.id === id);
+        if (!project) return;
+        modalCarouselState[id] = 0;
+
+        // 3D建模模块使用 before/after 对比滑块
+        const is3DModeling = project.category === '3d-modeling';
+        const hasComparison = is3DModeling && project.images && project.images.length >= 2;
+
+        let mediaHtml = '';
+        if (project.video) {
+            mediaHtml = `<video src="${project.video}" class="w-full max-h-[60vh] object-contain" controls controlsList="nodownload" preload="auto" autoplay></video>`;
+        } else if (hasComparison) {
+            const beforeImg = project.images[0];
+            const afterImg = project.images[1];
+            mediaHtml = `
+            <div class="ba-slider" id="ba-slider-${project.id}" onmousedown="startBASlider(event, ${project.id})" ontouchstart="startBASlider(event, ${project.id})">
+                <img src="${beforeImg}" alt="${project.title} - 白膜" draggable="false">
+                <div class="ba-after" id="ba-after-${project.id}">
+                    <img src="${afterImg}" alt="${project.title} - 线框" draggable="false">
+                </div>
+                <div class="ba-handle" id="ba-handle-${project.id}"></div>
+                <span class="ba-label ba-label-before">白膜</span>
+                <span class="ba-label ba-label-after">线框</span>
+            </div>`;
+        } else {
+            mediaHtml = `<img id="modal-carousel-img-${project.id}" src="${project.images && project.images.length > 0 ? project.images[0] : project.cover}" alt="${project.title}" class="max-w-full max-h-full object-contain cursor-zoom-in" onclick="openLightbox(getModalCarouselImages(${project.id}), modalCarouselState[${project.id}] || 0)">`;
+        }
+
+        modalBody.innerHTML = `
+            <div class="relative bg-black/5 dark:bg-white/5 overflow-hidden rounded-t-2xl ${project.video ? '' : 'flex-1 min-h-0 flex items-center justify-center'}" id="modal-carousel-${project.id}">
+                ${mediaHtml}
+                ${!project.video && !hasComparison && project.images && project.images.length > 1 ? `
+                <button onclick="event.stopPropagation(); modalCarouselPrev(${project.id})" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all">
+                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                </button>
+                <button onclick="event.stopPropagation(); modalCarouselNext(${project.id})" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all">
+                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                </button>
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
+                    <span id="modal-carousel-counter-${project.id}">1 / ${project.images.length}</span>
+                </div>
+                <div class="absolute bottom-3 left-3 flex gap-1.5">
+                    ${project.images.map((_, i) => `<span class="modal-dot-${project.id} w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/40'} transition-all cursor-pointer" onclick="event.stopPropagation(); modalCarouselGoTo(${project.id}, ${i})"></span>`).join('')}
+                </div>` : ''}
+            </div>
+            <div class="p-5 sm:p-6 flex-shrink-0">
+                <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
+                    <div>
+                        <h2 class="text-2xl font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">${project.title}</h2>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            ${project.tags.map(t => `<span class="px-2.5 py-1 text-xs font-medium bg-[var(--apple-blue)]/10 text-[var(--apple-blue)] rounded-full">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                    <span class="px-3 py-1.5 text-sm bg-[#e8e8ed] dark:bg-[#2c2c2e] text-[#6e6e73] dark:text-[#a1a1a6] rounded-full">${getCategoryName(project.category)}</span>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-4 mb-6 p-4 bg-[var(--apple-light-bg)] dark:bg-[#000000] rounded-2xl">
+                    <div><span class="text-xs text-[#86868b]">角色</span><p class="font-medium text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">${project.role}</p></div>
+                    <div><span class="text-xs text-[#86868b]">技术栈</span><p class="font-medium text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">${project.techs.join(' / ')}</p></div>
+                </div>
+                <p class="text-[#6e6e73] dark:text-[#a1a1a6] leading-relaxed mb-6">${project.detail}</p>
+                ${project.links && project.links.length > 0 ? `
+                <h4 class="text-lg font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] mb-3">外部链接</h4>
+                <div class="flex flex-wrap gap-2">
+                    ${project.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener" class="apple-btn apple-btn-primary text-sm"><i class="fa-solid fa-external-link-alt text-xs"></i>${l.label}</a>`).join('')}
+                </div>` : ''}
+            </div>`;
+        projectModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    // Before/After Slider functions
+    let baActiveId = null;
+    window.startBASlider = function(e, projectId) {
+        e.preventDefault();
+        baActiveId = projectId;
+        updateBASlider(e);
+        document.addEventListener('mousemove', onBASliderMove);
+        document.addEventListener('mouseup', stopBASlider);
+        document.addEventListener('touchmove', onBASliderMove, { passive: false });
+        document.addEventListener('touchend', stopBASlider);
+    };
+    function onBASliderMove(e) {
+        if (baActiveId === null) return;
+        e.preventDefault();
+        updateBASlider(e);
+    }
+    function stopBASlider() {
+        baActiveId = null;
+        document.removeEventListener('mousemove', onBASliderMove);
+        document.removeEventListener('mouseup', stopBASlider);
+        document.removeEventListener('touchmove', onBASliderMove);
+        document.removeEventListener('touchend', stopBASlider);
+    }
+    function updateBASlider(e) {
+        if (baActiveId === null) return;
+        const slider = document.getElementById(`ba-slider-${baActiveId}`);
+        const after = document.getElementById(`ba-after-${baActiveId}`);
+        const handle = document.getElementById(`ba-handle-${baActiveId}`);
+        if (!slider || !after || !handle) return;
+
+        const rect = slider.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        let percent = ((clientX - rect.left) / rect.width) * 100;
+        percent = Math.max(0, Math.min(100, percent));
+
+        after.style.width = percent + '%';
+        handle.style.left = percent + '%';
+    }
+
+    function setupModal() {
+        modalClose.addEventListener('click', closeModal);
+        projectModal.addEventListener('click', (e) => { if (e.target === projectModal) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && projectModal.classList.contains('active')) closeModal(); });
+    }
+    function closeModal() {
+        projectModal.classList.remove('active');
+        document.body.style.overflow = '';
+        const video = modalBody.querySelector('video');
+        if (video) video.pause();
+    }
+
+    window.openLightbox = function(images, index) {
+        lightboxImages = Array.isArray(images) ? images : [];
+        lightboxIndex = Math.max(0, Math.min(index, lightboxImages.length - 1));
+        updateLightbox();
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        lightboxPrev.style.display = lightboxImages.length > 1 ? 'flex' : 'none';
+        lightboxNext.style.display = lightboxImages.length > 1 ? 'flex' : 'none';
+    };
+    // Lightbox zoom & pan state
+    let lbScale = 1, lbTranslateX = 0, lbTranslateY = 0;
+    let lbIsDragging = false, lbStartX = 0, lbStartY = 0;
+
+    function resetLightboxTransform() {
+        lbScale = 1; lbTranslateX = 0; lbTranslateY = 0;
+        applyLightboxTransform();
+    }
+    function applyLightboxTransform() {
+        lightboxImg.style.transform = `translate(${lbTranslateX}px, ${lbTranslateY}px) scale(${lbScale})`;
+    }
+    function updateLightbox() {
+        lightboxImg.src = lightboxImages[lightboxIndex];
+        lightboxCaption.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
+        resetLightboxTransform();
+    }
+    function setupLightbox() {
+        lightboxClose.addEventListener('click', () => { lightbox.classList.remove('active'); document.body.style.overflow = ''; resetLightboxTransform(); });
+        lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target.id === 'lightbox-img-container') { lightbox.classList.remove('active'); document.body.style.overflow = ''; resetLightboxTransform(); } });
+        lightboxPrev.addEventListener('click', () => { lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length; updateLightbox(); });
+        lightboxNext.addEventListener('click', () => { lightboxIndex = (lightboxIndex + 1) % lightboxImages.length; updateLightbox(); });
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') { lightbox.classList.remove('active'); document.body.style.overflow = ''; resetLightboxTransform(); }
+            if (e.key === 'ArrowLeft') { lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length; updateLightbox(); }
+            if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % lightboxImages.length; updateLightbox(); }
+        });
+
+        // Wheel zoom
+        lightboxImg.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.15 : 0.15;
+            const newScale = Math.max(0.5, Math.min(5, lbScale + delta));
+            if (newScale !== lbScale) {
+                lbScale = newScale;
+                if (lbScale <= 1) { lbTranslateX = 0; lbTranslateY = 0; }
+                applyLightboxTransform();
+            }
+        }, { passive: false });
+
+        // Double click to reset
+        lightboxImg.addEventListener('dblclick', () => {
+            resetLightboxTransform();
+        });
+
+        // Right-click drag to pan when zoomed
+        lightboxImg.addEventListener('mousedown', (e) => {
+            if (lbScale <= 1) return;
+            if (e.button !== 2) return; // Only right mouse button
+            lbIsDragging = true;
+            lbStartX = e.clientX - lbTranslateX;
+            lbStartY = e.clientY - lbTranslateY;
+            lightboxImg.classList.add('cursor-grabbing');
+            lightboxImg.classList.remove('cursor-grab');
+            // Disable transition during drag for instant response
+            lightboxImg.style.transition = 'none';
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!lbIsDragging) return;
+            e.preventDefault();
+            lbTranslateX = e.clientX - lbStartX;
+            lbTranslateY = e.clientY - lbStartY;
+            applyLightboxTransform();
+        });
+        document.addEventListener('mouseup', (e) => {
+            if (lbIsDragging && e.button === 2) {
+                lbIsDragging = false;
+                lightboxImg.classList.remove('cursor-grabbing');
+                lightboxImg.classList.add('cursor-grab');
+                // Re-enable transition after drag
+                lightboxImg.style.transition = 'transform 0.2s ease-out';
+            }
+        });
+        // Prevent default context menu on lightbox image
+        lightboxImg.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+    }
+
+    function setupBackToTop() {
+        window.addEventListener('scroll', () => { backToTop.classList.toggle('visible', window.scrollY > 600); });
+        backToTop.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    }
+
+    function setupThemeToggle() {
+        ['theme-toggle', 'theme-toggle-mobile'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            });
+        });
+    }
+
+    function setupMobileMenu() {
+        mobileMenuBtn.addEventListener('click', () => {
+            const isOpen = mobileMenu.style.transform === 'translateY(0px)';
+            mobileMenu.style.transform = isOpen ? 'translateY(calc(-100% - var(--nav-height)))' : 'translateY(0px)';
+            mobileMenu.style.opacity = isOpen ? '0' : '1';
+            mobileMenu.style.pointerEvents = isOpen ? 'none' : 'all';
+        });
+        document.querySelectorAll('.mobile-nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.style.transform = 'translateY(calc(-100% - var(--nav-height)))';
+                mobileMenu.style.opacity = '0';
+                mobileMenu.style.pointerEvents = 'none';
+            });
+        });
+    }
+
+    function setupNavScroll() {
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('shadow-sm', window.scrollY > 10);
+        });
+    }
+
+    function setupRevealAnimations() {
+        const reveals = document.querySelectorAll('.reveal:not(.visible)');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        reveals.forEach(el => observer.observe(el));
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
