@@ -38,7 +38,7 @@
         }
 
         html { scroll-behavior: smooth; scroll-padding-top: var(--nav-height); }
-        body { font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, 'PingFang SC', sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, 'PingFang SC', sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: pan-y; }
 
         /* Apple-style scrollbar */
         ::-webkit-scrollbar { width: 6px; }
@@ -149,8 +149,8 @@
         /* Lightbox */
         .lightbox { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
         .lightbox.active { opacity: 1; pointer-events: all; }
-        .lightbox img { transform: scale(0.92); transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); }
-        .lightbox.active img { transform: scale(1); }
+        .lb-slide { flex-shrink: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0 12px; overflow: hidden; }
+        .lb-slide img { max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 16px; user-select: none; -webkit-user-drag: none; }
 
         /* Modal */
         .modal { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
@@ -537,12 +537,12 @@
         <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-[120] w-11 h-11 rounded-full bg-black/40 flex items-center justify-center text-gray-300 hover:bg-black/60 hover:text-white transition-all">
             <i class="fa-solid fa-chevron-right"></i>
         </button>
-        <div class="relative w-full h-full flex items-center justify-center overflow-hidden" id="lightbox-img-container">
-            <img id="lightbox-img" src="" alt="" class="max-w-full max-h-[85vh] rounded-xl object-contain cursor-grab active:cursor-grabbing" style="transform-origin: center center; transition: transform 0.2s ease-out;">
+        <div class="relative w-full h-full overflow-hidden cursor-grab active:cursor-grabbing" id="lightbox-img-container">
+            <div id="lightbox-track" class="flex h-full items-center"></div>
         </div>
         <p id="lightbox-caption" class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm z-[120]"></p>
         <div class="absolute bottom-16 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/80 text-xs z-[120]">
-            滚轮缩放 / 右键拖拽移动 / 双击还原
+            左右滑动切换 / 滚轮缩放 / 双击还原
         </div>
     </div>
 
@@ -789,7 +789,8 @@
     const modalBody = document.getElementById('modal-body');
     const modalClose = document.getElementById('modal-close');
     const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxTrack = document.getElementById('lightbox-track');
+    const lightboxContainer = document.getElementById('lightbox-img-container');
     const lightboxCaption = document.getElementById('lightbox-caption');
     const lightboxClose = document.getElementById('lightbox-close');
     const lightboxPrev = document.getElementById('lightbox-prev');
@@ -802,6 +803,8 @@
     let lightboxImages = [];
     let lightboxIndex = 0;
     let currentLayout = 'grid';
+    // Save body overflow before lightbox/modal opens
+    let _savedBodyOverflow = '';
 
     function init() {
         renderProjects();
@@ -899,24 +902,25 @@
         });
     }
 
-    // Modal carousel functions
+    // Modal carousel functions (track-based)
     const modalCarouselState = {};
     window.getModalCarouselImages = function(projectId) {
         const project = projects.find(p => p.id === projectId);
-        return project ? project.images : [];
+        const imgs = project ? (project.images && project.images.length > 0 ? project.images : [project.cover]) : [];
+        return imgs;
     };
     window.modalCarouselPrev = function(projectId) {
         const images = getModalCarouselImages(projectId);
         if (images.length <= 1) return;
-        if (!modalCarouselState[projectId]) modalCarouselState[projectId] = 0;
-        modalCarouselState[projectId] = (modalCarouselState[projectId] - 1 + images.length) % images.length;
+        const idx = (modalCarouselState[projectId] || 0);
+        modalCarouselState[projectId] = (idx - 1 + images.length) % images.length;
         updateModalCarousel(projectId);
     };
     window.modalCarouselNext = function(projectId) {
         const images = getModalCarouselImages(projectId);
         if (images.length <= 1) return;
-        if (!modalCarouselState[projectId]) modalCarouselState[projectId] = 0;
-        modalCarouselState[projectId] = (modalCarouselState[projectId] + 1) % images.length;
+        const idx = (modalCarouselState[projectId] || 0);
+        modalCarouselState[projectId] = (idx + 1) % images.length;
         updateModalCarousel(projectId);
     };
     window.modalCarouselGoTo = function(projectId, index) {
@@ -928,9 +932,14 @@
     function updateModalCarousel(projectId) {
         const images = getModalCarouselImages(projectId);
         const idx = modalCarouselState[projectId] || 0;
-        const imgEl = document.getElementById(`modal-carousel-img-${projectId}`);
+        const track = document.getElementById(`modal-carousel-track-${projectId}`);
         const counterEl = document.getElementById(`modal-carousel-counter-${projectId}`);
-        if (imgEl) imgEl.src = assetUrl(images[idx]);
+        if (track) {
+            const container = track.parentElement;
+            const w = container ? container.getBoundingClientRect().width : 0;
+            track.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            track.style.transform = `translateX(${-(idx * w)}px)`;
+        }
         if (counterEl) counterEl.textContent = `${idx + 1} / ${images.length}`;
         document.querySelectorAll(`.modal-dot-${projectId}`).forEach((dot, i) => {
             dot.className = `modal-dot-${projectId} w-2 h-2 rounded-full ${i === idx ? 'bg-white' : 'bg-white/40'} transition-all cursor-pointer`;
@@ -963,25 +972,34 @@
                 <span class="ba-label ba-label-after">线框</span>
             </div>`;
         } else {
-            mediaHtml = `<img id="modal-carousel-img-${project.id}" src="${assetUrl(project.images && project.images.length > 0 ? project.images[0] : project.cover)}" alt="${project.title}" class="max-w-full max-h-full object-contain cursor-zoom-in" onclick="openLightbox(getModalCarouselImages(${project.id}), modalCarouselState[${project.id}] || 0)">`;
+            const imgs = project.images && project.images.length > 0 ? project.images : [project.cover];
+            const multiImg = imgs.length > 1;
+            mediaHtml = `
+            <div class="flex h-full items-center cursor-grab active:cursor-grabbing" id="modal-carousel-track-${project.id}">
+                ${imgs.map((img, i) => `
+                    <div class="flex-shrink-0 w-full h-full flex items-center justify-center mc-slide-${project.id}">
+                        <img src="${assetUrl(img)}" class="max-w-full max-h-full object-contain cursor-pointer rounded" onclick="if(window._mcSwiped===${project.id})return;event.stopPropagation();openLightbox(getModalCarouselImages(${project.id}),${i})" draggable="false">
+                    </div>
+                `).join('')}
+            </div>
+            ${multiImg ? `
+            <button onclick="event.stopPropagation(); modalCarouselPrev(${project.id})" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all z-10">
+                <i class="fa-solid fa-chevron-left text-sm"></i>
+            </button>
+            <button onclick="event.stopPropagation(); modalCarouselNext(${project.id})" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all z-10">
+                <i class="fa-solid fa-chevron-right text-sm"></i>
+            </button>
+            <div class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium z-10">
+                <span id="modal-carousel-counter-${project.id}">1 / ${imgs.length}</span>
+            </div>
+            <div class="absolute bottom-3 left-3 flex gap-1.5 z-10">
+                ${imgs.map((_, i) => `<span class="modal-dot-${project.id} w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/40'} transition-all cursor-pointer" onclick="event.stopPropagation(); modalCarouselGoTo(${project.id}, ${i})"></span>`).join('')}
+            </div>` : ''}`;
         }
 
         modalBody.innerHTML = `
-            <div class="relative bg-black/5 dark:bg-white/5 overflow-hidden rounded-t-2xl ${project.video ? '' : 'flex-1 min-h-0 flex items-center justify-center'}" id="modal-carousel-${project.id}">
+            <div class="relative bg-black/5 dark:bg-white/5 overflow-hidden rounded-t-2xl ${project.video ? '' : 'flex-1 min-h-0'}" id="modal-carousel-${project.id}">
                 ${mediaHtml}
-                ${!project.video && !hasComparison && project.images && project.images.length > 1 ? `
-                <button onclick="event.stopPropagation(); modalCarouselPrev(${project.id})" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all">
-                    <i class="fa-solid fa-chevron-left text-sm"></i>
-                </button>
-                <button onclick="event.stopPropagation(); modalCarouselNext(${project.id})" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm transition-all">
-                    <i class="fa-solid fa-chevron-right text-sm"></i>
-                </button>
-                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
-                    <span id="modal-carousel-counter-${project.id}">1 / ${project.images.length}</span>
-                </div>
-                <div class="absolute bottom-3 left-3 flex gap-1.5">
-                    ${project.images.map((_, i) => `<span class="modal-dot-${project.id} w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/40'} transition-all cursor-pointer" onclick="event.stopPropagation(); modalCarouselGoTo(${project.id}, ${i})"></span>`).join('')}
-                </div>` : ''}
             </div>
             <div class="p-5 sm:p-6 flex-shrink-0">
                 <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
@@ -1003,50 +1021,54 @@
                     ${project.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener" class="apple-btn apple-btn-primary text-sm"><i class="fa-solid fa-external-link-alt text-xs"></i>${l.label}</a>`).join('')}
                 </div>` : ''}
             </div>`;
-        // Attach swipe handlers to modal carousel image
-        const carouselImg = document.getElementById(`modal-carousel-img-${project.id}`);
-        if (carouselImg && project.images && project.images.length > 1 && !project.video && !hasComparison) {
-            let mcStartX = 0, mcOffsetX = 0, mcActive = false, mcMoved = false;
+        // Attach swipe handlers to modal carousel track
+        const mcTrack = document.getElementById(`modal-carousel-track-${project.id}`);
+        const mcImgs = getModalCarouselImages(project.id);
+        if (mcTrack && mcImgs.length > 1 && !project.video && !hasComparison) {
+            let mcStartX = 0, mcOffsetX = 0, mcActive = false, mcBaseX = 0, mcSwiped = false;
             const onStart = (clientX) => {
-                mcActive = true; mcMoved = false;
+                mcActive = true;
+                mcSwiped = false;
                 mcStartX = clientX; mcOffsetX = 0;
-                carouselImg.style.transition = 'none';
-                carouselImg.style.cursor = 'grabbing';
+                mcBaseX = -(modalCarouselState[project.id] || 0) * mcTrack.parentElement.getBoundingClientRect().width;
+                mcTrack.style.transition = 'none';
+                mcTrack.style.cursor = 'grabbing';
             };
             const onMove = (clientX) => {
                 if (!mcActive) return;
                 mcOffsetX = clientX - mcStartX;
-                if (Math.abs(mcOffsetX) > 5) mcMoved = true;
-                carouselImg.style.transform = `translateX(${mcOffsetX}px)`;
+                if (Math.abs(mcOffsetX) > 5) mcSwiped = true;
+                mcTrack.style.transform = `translateX(${mcBaseX + mcOffsetX}px)`;
             };
             const onEnd = () => {
                 if (!mcActive) return;
                 mcActive = false;
-                carouselImg.style.transition = 'transform 0.25s ease-out';
-                const threshold = 50;
+                mcTrack.style.cursor = 'grab';
+                const w = mcTrack.parentElement.getBoundingClientRect().width;
+                const threshold = w * 0.15;
                 if (Math.abs(mcOffsetX) > threshold) {
                     if (mcOffsetX > 0) { modalCarouselPrev(project.id); }
                     else { modalCarouselNext(project.id); }
+                } else {
+                    updateModalCarousel(project.id);
                 }
-                carouselImg.style.transform = 'translateX(0)';
-                carouselImg.style.cursor = 'zoom-in';
-                // Reset transition after snap
-                setTimeout(() => { carouselImg.style.transition = ''; }, 260);
+                // Clear swipe flag after a tick (click fires after mouseup)
+                if (mcSwiped) {
+                    window._mcSwiped = project.id;
+                    setTimeout(() => { if (window._mcSwiped === project.id) window._mcSwiped = null; }, 300);
+                }
             };
-            carouselImg.addEventListener('mousedown', (e) => { if (e.button === 0) { e.preventDefault(); onStart(e.clientX); } });
-            carouselImg.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { onStart(e.touches[0].clientX); } }, { passive: false });
+            mcTrack.addEventListener('mousedown', (e) => { if (e.button === 0) { e.preventDefault(); onStart(e.clientX); } });
+            mcTrack.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { onStart(e.touches[0].clientX); } }, { passive: false });
             document.addEventListener('mousemove', (e) => { onMove(e.clientX); });
             document.addEventListener('touchmove', (e) => { if (e.touches.length === 1) { onMove(e.touches[0].clientX); if (Math.abs(mcOffsetX) > 10) e.preventDefault(); } }, { passive: false });
             document.addEventListener('mouseup', onEnd);
             document.addEventListener('touchend', onEnd);
-            // Open lightbox only if not swiped
-            carouselImg.addEventListener('click', (e) => {
-                if (mcMoved) { e.preventDefault(); e.stopPropagation(); mcMoved = false; }
-            }, true);
         }
 
-        projectModal.classList.add('active');
+        _savedBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
+        projectModal.classList.add('active');
 
         // syncBAImages no longer needed - CSS handles alignment
     };
@@ -1101,167 +1123,244 @@
     }
     function closeModal() {
         projectModal.classList.remove('active');
-        document.body.style.overflow = '';
+        document.body.style.overflow = _savedBodyOverflow;
+        document.body.style.touchAction = '';
         const video = modalBody.querySelector('video');
         if (video) video.pause();
+    }
+
+    // ====== LIGHTBOX: swipe = switch, wheel = zoom, click blank = close ======
+    let lbTrackIndex = 0;
+    let lbSwiped = false;
+    // Swipe state
+    let lbSwipeStartX = 0, lbSwipeDelta = 0, lbSwipeActive = false;
+    // Per-slide zoom state: { scale, panX, panY }
+    let lbZoom = {};
+    // Click guard: prevent close after swipe
+    let lbClickGuard = false;
+
+    function lbGetZoom(idx) {
+        return lbZoom[idx] || { scale: 1, panX: 0, panY: 0 };
+    }
+
+    // Track position: always percentage-based for smoothness
+    function lbSetTrack(anim) {
+        const pct = -(lbTrackIndex * 100) + (lbSwipeDelta / (lbContainerW() || window.innerWidth)) * 100;
+        lightboxTrack.style.transition = anim ? 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none';
+        lightboxTrack.style.transform = `translateX(${pct}%)`;
+    }
+
+    function lbContainerW() {
+        return lightboxContainer ? lightboxContainer.getBoundingClientRect().width : window.innerWidth;
+    }
+
+    function lbApplyImgZoom(idx, anim) {
+        const slides = lightboxTrack.querySelectorAll('.lb-slide');
+        const slide = slides[idx];
+        const img = slide ? slide.querySelector('img') : null;
+        if (!img) return;
+        const z = lbGetZoom(idx);
+        img.style.transition = anim ? 'transform 0.2s ease-out' : 'none';
+        img.style.transform = z.scale === 1 ? '' : `translate(${z.panX}px, ${z.panY}px) scale(${z.scale})`;
+        // Allow overflow when zoomed so image isn't clipped
+        slide.style.overflow = z.scale > 1 ? 'visible' : 'hidden';
+    }
+
+    function lbResetAllZooms() {
+        lightboxTrack.querySelectorAll('.lb-slide').forEach(slide => {
+            slide.style.overflow = 'hidden';
+            const img = slide.querySelector('img');
+            if (img) { img.style.transition = 'none'; img.style.transform = ''; }
+        });
+    }
+
+    function lbSnap() {
+        lbSwipeDelta = 0;
+        lbSetTrack(true);
+        lightboxCaption.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
+    }
+
+    function lbClose() {
+        lightbox.classList.remove('active');
+        lbZoom = {};
+        lbSwipeDelta = 0; lbSwipeActive = false; lbSwiped = false; lbClickGuard = false;
+        lbResetAllZooms();
+        lbSetTrack(false);
+        // Restore body overflow, then force a reflow to fix mobile touch
+        document.body.style.overflow = _savedBodyOverflow;
+        document.body.style.touchAction = '';
     }
 
     window.openLightbox = function(images, index) {
         lightboxImages = Array.isArray(images) ? images : [];
         lightboxIndex = Math.max(0, Math.min(index, lightboxImages.length - 1));
-        updateLightbox();
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        lbTrackIndex = lightboxIndex;
+        lbZoom = {};
+        lbSwipeDelta = 0; lbSwipeActive = false; lbSwiped = false; lbClickGuard = false;
         lightboxPrev.style.display = lightboxImages.length > 1 ? 'flex' : 'none';
         lightboxNext.style.display = lightboxImages.length > 1 ? 'flex' : 'none';
-    };
-    // Lightbox zoom & pan state
-    let lbScale = 1, lbTranslateX = 0, lbTranslateY = 0;
-    let lbIsDragging = false, lbStartX = 0, lbStartY = 0;
-    // Lightbox swipe state
-    let lbSwipeStartX = 0, lbSwipeOffsetX = 0, lbSwipeActive = false;
-    let lbSwipeDirection = null; // 'left' or 'right'
 
-    function resetLightboxTransform() {
-        lbScale = 1; lbTranslateX = 0; lbTranslateY = 0;
-        applyLightboxTransform();
-    }
-    function applyLightboxTransform() {
-        lightboxImg.style.transform = `translate(${lbTranslateX}px, ${lbTranslateY}px) scale(${lbScale})`;
-    }
-    function updateLightbox() {
-        lightboxImg.src = assetUrl(lightboxImages[lightboxIndex]);
+        lightboxTrack.innerHTML = lightboxImages.map(img => `
+            <div class="lb-slide"><img src="${assetUrl(img)}" alt="" draggable="false"></div>
+        `).join('');
+
+        lbSetTrack(false);
         lightboxCaption.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
-        resetLightboxTransform();
+        _savedBodyOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        lightbox.classList.add('active');
+    };
+
+    function lbGoTo(idx) {
+        // Reset zoom on leaving slide
+        if (lbGetZoom(lbTrackIndex).scale > 1) {
+            lbZoom[lbTrackIndex] = { scale: 1, panX: 0, panY: 0 };
+            lbApplyImgZoom(lbTrackIndex, true);
+        }
+        lightboxIndex = (idx + lightboxImages.length) % lightboxImages.length;
+        lbTrackIndex = lightboxIndex;
+        lbSnap();
     }
+
+    function lbIsZoomed() {
+        return lbGetZoom(lbTrackIndex).scale > 1;
+    }
+
     function setupLightbox() {
-        lightboxClose.addEventListener('click', () => { lightbox.classList.remove('active'); document.body.style.overflow = ''; resetLightboxTransform(); });
-        lightbox.addEventListener('click', (e) => { if (e.target === lightbox || e.target.id === 'lightbox-img-container') { lightbox.classList.remove('active'); document.body.style.overflow = ''; resetLightboxTransform(); } });
-        lightboxPrev.addEventListener('click', () => { lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length; updateLightbox(); });
-        lightboxNext.addEventListener('click', () => { lightboxIndex = (lightboxIndex + 1) % lightboxImages.length; updateLightbox(); });
+        lightboxClose.addEventListener('click', lbClose);
+
+        // ===== CLICK TO CLOSE =====
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox || e.target === lightboxContainer) {
+                if (lbClickGuard) { lbClickGuard = false; return; }
+                lbClose();
+            }
+        });
+        lightboxTrack.addEventListener('click', (e) => {
+            if (lbClickGuard) { lbClickGuard = false; return; }
+            if (e.target.classList.contains('lb-slide')) {
+                lbClose();
+            }
+        });
+
+        lightboxPrev.addEventListener('click', () => lbGoTo(lightboxIndex - 1));
+        lightboxNext.addEventListener('click', () => lbGoTo(lightboxIndex + 1));
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
-            if (e.key === 'Escape') { lightbox.classList.remove('active'); document.body.style.overflow = ''; resetLightboxTransform(); }
-            if (e.key === 'ArrowLeft') { lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length; updateLightbox(); }
-            if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % lightboxImages.length; updateLightbox(); }
+            if (e.key === 'Escape') lbClose();
+            if (e.key === 'ArrowLeft') lbGoTo(lightboxIndex - 1);
+            if (e.key === 'ArrowRight') lbGoTo(lightboxIndex + 1);
         });
 
-        // Wheel zoom
-        lightboxImg.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? -0.15 : 0.15;
-            const newScale = Math.max(0.5, Math.min(5, lbScale + delta));
-            if (newScale !== lbScale) {
-                lbScale = newScale;
-                if (lbScale <= 1) { lbTranslateX = 0; lbTranslateY = 0; }
-                applyLightboxTransform();
-            }
-        }, { passive: false });
-
-        // Double click to reset
-        lightboxImg.addEventListener('dblclick', () => {
-            resetLightboxTransform();
-        });
-
-        // Mouse drag: left-click swipe, right-click pan when zoomed
-        lightboxImg.addEventListener('mousedown', (e) => {
-            if (e.button === 0 && lbScale <= 1 && lightboxImages.length > 1) {
-                // Left click swipe when not zoomed
-                lbSwipeActive = true;
-                lbSwipeStartX = e.clientX;
-                lbSwipeOffsetX = 0;
-                lightboxImg.style.transition = 'none';
-                lightboxImg.style.cursor = 'grabbing';
-                e.preventDefault();
+        // ===== MOUSE SWIPE / PAN =====
+        lightboxContainer.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            lbSwiped = false; lbClickGuard = false;
+            if (lbIsZoomed()) {
+                const z = lbGetZoom(lbTrackIndex);
+                z._px = e.clientX - z.panX;
+                z._py = e.clientY - z.panY;
+                z._panning = true;
+                lightboxContainer.style.cursor = 'grabbing';
                 return;
             }
-            if (lbScale <= 1) return;
-            if (e.button !== 2) return; // Only right mouse button for pan
-            lbIsDragging = true;
-            lbStartX = e.clientX - lbTranslateX;
-            lbStartY = e.clientY - lbTranslateY;
-            lightboxImg.classList.add('cursor-grabbing');
-            lightboxImg.classList.remove('cursor-grab');
-            // Disable transition during drag for instant response
-            lightboxImg.style.transition = 'none';
+            if (lightboxImages.length <= 1) return;
+            lbSwipeActive = true;
+            lbSwipeStartX = e.clientX;
+            lbSwipeDelta = 0;
+            lightboxContainer.style.cursor = 'grabbing';
+            lbSetTrack(false);
+            e.preventDefault();
         });
         document.addEventListener('mousemove', (e) => {
-            if (lbSwipeActive) {
-                e.preventDefault();
-                lbSwipeOffsetX = e.clientX - lbSwipeStartX;
-                lightboxImg.style.transform = `translateX(${lbSwipeOffsetX}px)`;
+            if (!lightbox.classList.contains('active')) return;
+            const z = lbGetZoom(lbTrackIndex);
+            if (z._panning) {
+                z.panX = e.clientX - z._px;
+                z.panY = e.clientY - z._py;
+                lbApplyImgZoom(lbTrackIndex, false);
                 return;
             }
-            if (!lbIsDragging) return;
-            e.preventDefault();
-            lbTranslateX = e.clientX - lbStartX;
-            lbTranslateY = e.clientY - lbStartY;
-            applyLightboxTransform();
+            if (!lbSwipeActive) return;
+            lbSwipeDelta = e.clientX - lbSwipeStartX;
+            if (Math.abs(lbSwipeDelta) > 5) lbSwiped = true;
+            lbSetTrack(false);
         });
-        document.addEventListener('mouseup', (e) => {
-            if (lbSwipeActive) {
-                lbSwipeActive = false;
-                lightboxImg.style.transition = 'transform 0.25s ease-out';
-                lightboxImg.style.cursor = 'grab';
-                const threshold = 60;
-                if (Math.abs(lbSwipeOffsetX) > threshold) {
-                    if (lbSwipeOffsetX > 0) {
-                        lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
-                    } else {
-                        lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
-                    }
-                    updateLightbox();
-                    lightboxImg.style.transform = 'translateX(0)';
-                } else {
-                    lightboxImg.style.transform = 'translateX(0)';
-                }
+        document.addEventListener('mouseup', () => {
+            if (!lightbox.classList.contains('active')) return;
+            const z = lbGetZoom(lbTrackIndex);
+            if (z._panning) {
+                z._panning = false;
+                lightboxContainer.style.cursor = lbIsZoomed() ? 'move' : 'grab';
+                lbApplyImgZoom(lbTrackIndex, true);
                 return;
             }
-            if (lbIsDragging && e.button === 2) {
-                lbIsDragging = false;
-                lightboxImg.classList.remove('cursor-grabbing');
-                lightboxImg.classList.add('cursor-grab');
-                // Re-enable transition after drag
-                lightboxImg.style.transition = 'transform 0.2s ease-out';
+            if (!lbSwipeActive) return;
+            lbSwipeActive = false;
+            lightboxContainer.style.cursor = 'grab';
+            const w = lbContainerW();
+            const threshold = w * 0.12;
+            if (Math.abs(lbSwipeDelta) > threshold) {
+                lbTrackIndex += (lbSwipeDelta > 0) ? -1 : 1;
+                lbTrackIndex = Math.max(0, Math.min(lbTrackIndex, lightboxImages.length - 1));
+                lightboxIndex = lbTrackIndex;
+                lbClickGuard = true;
             }
-        });
-        // Prevent default context menu on lightbox image
-        lightboxImg.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
+            lbSnap();
         });
 
-        // Touch swipe for lightbox
-        lightboxImg.addEventListener('touchstart', (e) => {
-            if (lbScale > 1 || lightboxImages.length <= 1) return;
+        // ===== TOUCH SWIPE =====
+        lightboxContainer.addEventListener('touchstart', (e) => {
+            if (lbIsZoomed() || lightboxImages.length <= 1) return;
             if (e.touches.length === 1) {
+                lbSwiped = false; lbClickGuard = false;
                 lbSwipeActive = true;
                 lbSwipeStartX = e.touches[0].clientX;
-                lbSwipeOffsetX = 0;
-                lightboxImg.style.transition = 'none';
+                lbSwipeDelta = 0;
+                lbSetTrack(false);
             }
         }, { passive: false });
-        lightboxImg.addEventListener('touchmove', (e) => {
-            if (!lbSwipeActive || lbScale > 1) return;
-            lbSwipeOffsetX = e.touches[0].clientX - lbSwipeStartX;
-            lightboxImg.style.transform = `translateX(${lbSwipeOffsetX}px)`;
-            if (Math.abs(lbSwipeOffsetX) > 10) e.preventDefault();
+        lightboxContainer.addEventListener('touchmove', (e) => {
+            if (!lbSwipeActive) return;
+            lbSwipeDelta = e.touches[0].clientX - lbSwipeStartX;
+            if (Math.abs(lbSwipeDelta) > 5) { lbSwiped = true; e.preventDefault(); }
+            lbSetTrack(false);
         }, { passive: false });
-        lightboxImg.addEventListener('touchend', () => {
-            if (!lbSwipeActive || lbScale > 1) return;
+        lightboxContainer.addEventListener('touchend', () => {
+            if (!lbSwipeActive) return;
             lbSwipeActive = false;
-            lightboxImg.style.transition = 'transform 0.25s ease-out';
-            const threshold = 60;
-            if (Math.abs(lbSwipeOffsetX) > threshold) {
-                if (lbSwipeOffsetX > 0) {
-                    lightboxIndex = (lightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
-                } else {
-                    lightboxIndex = (lightboxIndex + 1) % lightboxImages.length;
-                }
-                updateLightbox();
-                lightboxImg.style.transform = 'translateX(0)';
-            } else {
-                lightboxImg.style.transform = 'translateX(0)';
+            const w = lbContainerW();
+            const threshold = w * 0.12;
+            if (Math.abs(lbSwipeDelta) > threshold) {
+                lbTrackIndex += (lbSwipeDelta > 0) ? -1 : 1;
+                lbTrackIndex = Math.max(0, Math.min(lbTrackIndex, lightboxImages.length - 1));
+                lightboxIndex = lbTrackIndex;
+                lbClickGuard = true;
             }
+            lbSnap();
+        });
+
+        // ===== WHEEL ZOOM =====
+        lightboxContainer.addEventListener('wheel', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            e.preventDefault();
+            const z = lbGetZoom(lbTrackIndex);
+            const delta = e.deltaY > 0 ? -0.4 : 0.4;
+            const ns = Math.max(1, Math.min(5, z.scale + delta));
+            if (ns !== z.scale) {
+                z.scale = ns;
+                if (z.scale <= 1) { z.panX = 0; z.panY = 0; }
+                lightboxContainer.style.cursor = z.scale > 1 ? 'move' : 'grab';
+                lbApplyImgZoom(lbTrackIndex, true);
+            }
+        }, { passive: false });
+
+        // ===== DOUBLE CLICK RESET =====
+        lightboxContainer.addEventListener('dblclick', () => {
+            const z = lbGetZoom(lbTrackIndex);
+            z.scale = 1; z.panX = 0; z.panY = 0;
+            lightboxContainer.style.cursor = 'grab';
+            lbApplyImgZoom(lbTrackIndex, true);
         });
     }
 
