@@ -710,7 +710,6 @@
             detail: '相机产品的专业级渲染作品。通过精致的灯光和材质表现，展现相机产品的设计与制造工艺，突出相机质感和精密细节。',
             role: '渲染 / 材质 / 灯光', techs: ['Blender-Cycles', '产品渲染', '精密仪器'],
         },
-
         {
             id: 18, title: '啤酒渲染', category: 'product-rendering',
             tags: ['产品渲染', '饮品', 'Blender-Cycles'], cover: 'assets/product-render/beer.jpg',
@@ -1074,10 +1073,15 @@
             };
             mcTrack.addEventListener('mousedown', (e) => { if (e.button === 0) { e.preventDefault(); onStart(e.clientX); } });
             mcTrack.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { onStart(e.touches[0].clientX); } }, { passive: false });
-            document.addEventListener('mousemove', (e) => { onMove(e.clientX); });
-            document.addEventListener('touchmove', (e) => { if (e.touches.length === 1) { onMove(e.touches[0].clientX); if (Math.abs(mcOffsetX) > 10) e.preventDefault(); } }, { passive: false });
-            document.addEventListener('mouseup', onEnd);
-            document.addEventListener('touchend', onEnd);
+            _cleanupModalSwipeListeners();
+            _modalDocMove = (e) => { onMove(e.clientX); };
+            _modalDocTouchMove = (e) => { if (e.touches.length === 1) { onMove(e.touches[0].clientX); if (Math.abs(mcOffsetX) > 10) e.preventDefault(); } };
+            _modalDocUp = onEnd;
+            _modalDocTouchEnd = onEnd;
+            document.addEventListener('mousemove', _modalDocMove);
+            document.addEventListener('touchmove', _modalDocTouchMove, { passive: false });
+            document.addEventListener('mouseup', _modalDocUp);
+            document.addEventListener('touchend', _modalDocTouchEnd);
         }
 
         _savedModalBodyOverflow = document.body.style.overflow;
@@ -1133,14 +1137,25 @@
     function setupModal() {
         modalClose.addEventListener('click', closeModal);
         projectModal.addEventListener('click', (e) => { if (e.target === projectModal) closeModal(); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && projectModal.classList.contains('active')) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && projectModal.classList.contains('active') && !lightbox.classList.contains('active')) closeModal(); });
     }
     function closeModal() {
+        _cleanupModalSwipeListeners();
+        baActiveId = null;
         projectModal.classList.remove('active');
         document.body.style.overflow = _savedModalBodyOverflow || '';
         document.body.style.touchAction = '';
         const video = modalBody.querySelector('video');
         if (video) video.pause();
+    }
+
+    // Modal swipe cleanup refs (to prevent memory leak)
+    let _modalDocMove = null, _modalDocUp = null, _modalDocTouchMove = null, _modalDocTouchEnd = null;
+    function _cleanupModalSwipeListeners() {
+        if (_modalDocMove) { document.removeEventListener('mousemove', _modalDocMove); _modalDocMove = null; }
+        if (_modalDocUp) { document.removeEventListener('mouseup', _modalDocUp); _modalDocUp = null; }
+        if (_modalDocTouchMove) { document.removeEventListener('touchmove', _modalDocTouchMove); _modalDocTouchMove = null; }
+        if (_modalDocTouchEnd) { document.removeEventListener('touchend', _modalDocTouchEnd); _modalDocTouchEnd = null; }
     }
 
     // ====== LIGHTBOX: swipe = switch, wheel = zoom, click blank = close ======
