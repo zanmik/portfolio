@@ -566,9 +566,8 @@
     <!-- ==================== SCRIPTS ==================== -->
     <script>
     // ===== 素材基础URL配置 =====
-    // 本地开发时留空 ''，部署到腾讯云COS后改为你的COS地址，如：
-    // 'https://your-bucket-1234567890.cos.ap-guangzhou.myqcloud.com/'
-    const ASSETS_BASE_URL = 'https://zanmik-portfolio-1440924341.cos.ap-guangzhou.myqcloud.com/';
+    // 本地开发时使用 ''，所有素材从项目文件夹的 assets/ 目录加载
+    const ASSETS_BASE_URL = '';
 
     // 自动为所有素材路径添加基础URL前缀
     function assetUrl(path) {
@@ -815,8 +814,9 @@
     let lightboxImages = [];
     let lightboxIndex = 0;
     let currentLayout = 'grid';
-    // Save body overflow before lightbox/modal opens
-    let _savedBodyOverflow = '';
+    // Save body overflow before lightbox/modal opens (separate variables to avoid conflicts)
+    let _savedModalBodyOverflow = '';
+    let _savedLightboxBodyOverflow = '';
 
     function init() {
         renderProjects();
@@ -853,7 +853,7 @@
             const coverSrc = assetUrl(p.cover);
             const fallbackSrc = p.images && p.images[0] ? assetUrl(p.images[0]) : coverSrc;
             const coverMedia = isVideoCover
-                ? `<video src="${coverSrc}" muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" oncanplay="this.currentTime=2;this.pause()"></video>`
+                ? `<video src="${coverSrc}" muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" onloadeddata="this.currentTime=2;this.pause()"></video>`
                 : `<img src="${coverSrc}" alt="${p.title}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" loading="lazy" onerror="this.onerror=null; this.src='${fallbackSrc}';">`;
             return `
             <div class="project-card apple-card cursor-pointer group" data-category="${p.category}" data-id="${p.id}" onclick="openProjectDetail(${p.id})">
@@ -971,7 +971,7 @@
 
         let mediaHtml = '';
         if (project.video) {
-            mediaHtml = `<video src="${assetUrl(project.video)}" class="w-full max-h-[60vh] object-contain" controls controlsList="nodownload" preload="auto" autoplay muted playsinline></video>`;
+            mediaHtml = `<video src="${assetUrl(project.video)}" class="w-full max-h-[60vh] object-contain" controls controlsList="nodownload" preload="metadata" autoplay muted playsinline></video>`;
         } else if (hasComparison) {
             const beforeImg = assetUrl(project.images[0]);
             const afterImg = assetUrl(project.images[1]);
@@ -1080,7 +1080,7 @@
             document.addEventListener('touchend', onEnd);
         }
 
-        _savedBodyOverflow = document.body.style.overflow;
+        _savedModalBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         projectModal.classList.add('active');
 
@@ -1137,7 +1137,7 @@
     }
     function closeModal() {
         projectModal.classList.remove('active');
-        document.body.style.overflow = _savedBodyOverflow;
+        document.body.style.overflow = _savedModalBodyOverflow || '';
         document.body.style.touchAction = '';
         const video = modalBody.querySelector('video');
         if (video) video.pause();
@@ -1158,7 +1158,8 @@
     let lbTouchPan = null; // { startX, startY, initPanX, initPanY }
 
     function lbGetZoom(idx) {
-        return lbZoom[idx] || { scale: 1, panX: 0, panY: 0 };
+        if (!lbZoom[idx]) lbZoom[idx] = { scale: 1, panX: 0, panY: 0 };
+        return lbZoom[idx];
     }
 
     // Track position: always percentage-based for smoothness
@@ -1212,7 +1213,7 @@
         lbResetAllZooms();
         lbSetTrack(false);
         // Restore body scroll — fix mobile scroll lock after lightbox
-        document.body.style.overflow = '';
+        document.body.style.overflow = _savedLightboxBodyOverflow || '';
         document.body.style.touchAction = '';
         document.documentElement.style.overflow = '';
         // Force reflow to unstick mobile Safari
@@ -1235,7 +1236,7 @@
 
         lbSetTrack(false);
         lightboxCaption.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
-        _savedBodyOverflow = document.body.style.overflow;
+        _savedLightboxBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         document.documentElement.style.overflow = 'hidden';
         lightbox.classList.add('active');
@@ -1272,6 +1273,17 @@
                 lbClose();
             }
         });
+        // Allow video controls to work without triggering lightbox pan/close
+        lightboxTrack.addEventListener('mousedown', (e) => {
+            if (e.target.closest('video')) {
+                e.stopPropagation();
+            }
+        });
+        lightboxTrack.addEventListener('touchstart', (e) => {
+            if (e.target.closest('video')) {
+                e.stopPropagation();
+            }
+        }, { passive: true });
 
         lightboxPrev.addEventListener('click', () => lbGoTo(lightboxIndex - 1));
         lightboxNext.addEventListener('click', () => lbGoTo(lightboxIndex + 1));
@@ -1455,7 +1467,7 @@
         });
 
         // ===== WHEEL ZOOM =====
-        lightboxContainer.addEventListener('wheel', (e) => {
+        lightbox.addEventListener('wheel', (e) => {
             if (!lightbox.classList.contains('active')) return;
             e.preventDefault();
             const z = lbGetZoom(lbTrackIndex);
