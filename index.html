@@ -150,6 +150,8 @@
         .lightbox { opacity: 0; pointer-events: none; transition: opacity 0.35s ease; }
         .lightbox.active { opacity: 1; pointer-events: all; }
         .lb-slide { flex-shrink: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0 12px; overflow: hidden; }
+        #lightbox-track { will-change: transform; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .lb-slide img { will-change: transform; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
         .lb-slide img { max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 16px; user-select: none; -webkit-user-drag: none; }
 
         /* Modal */
@@ -201,6 +203,7 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.08);
         }
         .dark .contact-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        .contact-card:hover .copy-hint { opacity: 1 !important; }
 
         /* Timeline */
         .timeline-dot {
@@ -482,26 +485,35 @@
                 </p>
             </div>
             <div class="grid sm:grid-cols-3 gap-5 max-w-[800px] mx-auto reveal">
-                <div class="contact-card text-center">
+                <div class="contact-card text-center cursor-pointer group" onclick="copyContact('823797790@qq.com', this)">
                     <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--apple-blue)]/10 flex items-center justify-center">
                         <i class="fa-solid fa-envelope text-[var(--apple-blue)]"></i>
                     </div>
                     <h4 class="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">邮箱</h4>
-                    <a href="mailto:823797790@qq.com" class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1 block hover:text-[var(--apple-blue)] transition-colors">823797790@qq.com</a>
+                    <p class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1 group-hover:text-[var(--apple-blue)] transition-colors">823797790@qq.com</p>
+                    <span class="copy-hint inline-block mt-2 text-xs text-[var(--apple-blue)] opacity-0 transition-opacity duration-200">
+                        <i class="fa-regular fa-copy"></i> 点击复制
+                    </span>
                 </div>
-                <div class="contact-card text-center">
+                <div class="contact-card text-center cursor-pointer group" onclick="copyContact('17620160523', this)">
                     <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--apple-blue)]/10 flex items-center justify-center">
                         <i class="fa-brands fa-weixin text-[var(--apple-blue)]"></i>
                     </div>
                     <h4 class="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">微信号</h4>
-                    <p class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1">17620160523</p>
+                    <p class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1 group-hover:text-[var(--apple-blue)] transition-colors">17620160523</p>
+                    <span class="copy-hint inline-block mt-2 text-xs text-[var(--apple-blue)] opacity-0 transition-opacity duration-200">
+                        <i class="fa-regular fa-copy"></i> 点击复制
+                    </span>
                 </div>
-                <div class="contact-card text-center">
+                <div class="contact-card text-center cursor-pointer group" onclick="copyContact('17620160523', this)">
                     <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-[var(--apple-blue)]/10 flex items-center justify-center">
                         <i class="fa-solid fa-phone text-[var(--apple-blue)]"></i>
                     </div>
                     <h4 class="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] text-sm">手机号</h4>
-                    <a href="tel:17620160523" class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1 block hover:text-[var(--apple-blue)] transition-colors">17620160523</a>
+                    <p class="text-[#6e6e73] dark:text-[#a1a1a6] text-sm mt-1 group-hover:text-[var(--apple-blue)] transition-colors">17620160523</p>
+                    <span class="copy-hint inline-block mt-2 text-xs text-[var(--apple-blue)] opacity-0 transition-opacity duration-200">
+                        <i class="fa-regular fa-copy"></i> 点击复制
+                    </span>
                 </div>
             </div>
         </div>
@@ -542,7 +554,7 @@
         </div>
         <p id="lightbox-caption" class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm z-[120]"></p>
         <div class="absolute bottom-16 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm text-white/80 text-xs z-[120]">
-            左右滑动切换 / 滚轮缩放 / 双击还原
+            左右滑动切换 / 双指缩放 / 滚轮缩放 / 双击还原
         </div>
     </div>
 
@@ -819,7 +831,9 @@
         setupRevealAnimations();
         setupNavScroll();
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (savedTheme === 'light') {
+            // User explicitly chose light mode
+        } else {
             document.documentElement.classList.add('dark');
         }
     }
@@ -1138,6 +1152,10 @@
     let lbZoom = {};
     // Click guard: prevent close after swipe
     let lbClickGuard = false;
+    // Pinch zoom state for mobile
+    let lbPinchState = null; // { initDist, initScale, initPanX, initPanY, cx, cy }
+    // Touch pan state for mobile (single finger when zoomed)
+    let lbTouchPan = null; // { startX, startY, initPanX, initPanY }
 
     function lbGetZoom(idx) {
         return lbZoom[idx] || { scale: 1, panX: 0, panY: 0 };
@@ -1146,8 +1164,14 @@
     // Track position: always percentage-based for smoothness
     function lbSetTrack(anim) {
         const pct = -(lbTrackIndex * 100) + (lbSwipeDelta / (lbContainerW() || window.innerWidth)) * 100;
-        lightboxTrack.style.transition = anim ? 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)' : 'none';
-        lightboxTrack.style.transform = `translateX(${pct}%)`;
+        if (anim) {
+            lightboxTrack.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+        } else {
+            lightboxTrack.style.transition = 'none';
+        }
+        requestAnimationFrame(() => {
+            lightboxTrack.style.transform = `translateX(${pct}%)`;
+        });
     }
 
     function lbContainerW() {
@@ -1184,11 +1208,16 @@
         lightbox.classList.remove('active');
         lbZoom = {};
         lbSwipeDelta = 0; lbSwipeActive = false; lbSwiped = false; lbClickGuard = false;
+        lbPinchState = null;
         lbResetAllZooms();
         lbSetTrack(false);
-        // Restore body overflow, then force a reflow to fix mobile touch
-        document.body.style.overflow = _savedBodyOverflow;
+        // Restore body scroll — fix mobile scroll lock after lightbox
+        document.body.style.overflow = '';
         document.body.style.touchAction = '';
+        document.documentElement.style.overflow = '';
+        // Force reflow to unstick mobile Safari
+        void document.body.offsetHeight;
+        window.scrollTo(window.scrollX, window.scrollY);
     }
 
     window.openLightbox = function(images, index) {
@@ -1208,6 +1237,7 @@
         lightboxCaption.textContent = `${lightboxIndex + 1} / ${lightboxImages.length}`;
         _savedBodyOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
         lightbox.classList.add('active');
     };
 
@@ -1309,24 +1339,108 @@
             lbSnap();
         });
 
-        // ===== TOUCH SWIPE =====
+        // ===== TOUCH: pinch zoom + pan + swipe =====
+        function lbTouchDist(e) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            return Math.hypot(dx, dy);
+        }
+        function lbTouchCenter(e) {
+            return {
+                x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+                y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+            };
+        }
+
         lightboxContainer.addEventListener('touchstart', (e) => {
-            if (lbIsZoomed() || lightboxImages.length <= 1) return;
-            if (e.touches.length === 1) {
-                lbSwiped = false; lbClickGuard = false;
-                lbSwipeActive = true;
-                lbSwipeStartX = e.touches[0].clientX;
-                lbSwipeDelta = 0;
-                lbSetTrack(false);
+            if (!lightbox.classList.contains('active')) return;
+            // Two-finger: start pinch zoom
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                lbSwipeActive = false;
+                lbPinchState = {
+                    initDist: lbTouchDist(e),
+                    initScale: lbGetZoom(lbTrackIndex).scale || 1,
+                    initPanX: lbGetZoom(lbTrackIndex).panX || 0,
+                    initPanY: lbGetZoom(lbTrackIndex).panY || 0,
+                    cx: lbTouchCenter(e).x,
+                    cy: lbTouchCenter(e).y
+                };
+                return;
             }
+            if (e.touches.length !== 1) return;
+            const z = lbGetZoom(lbTrackIndex);
+            // Single finger on zoomed image: pan
+            if (z.scale > 1) {
+                e.preventDefault();
+                lbTouchPan = {
+                    startX: e.touches[0].clientX,
+                    startY: e.touches[0].clientY,
+                    initPanX: z.panX,
+                    initPanY: z.panY
+                };
+                return;
+            }
+            // Single finger, not zoomed: swipe to switch
+            if (lightboxImages.length <= 1) return;
+            lbSwiped = false; lbClickGuard = false;
+            lbSwipeActive = true;
+            lbSwipeStartX = e.touches[0].clientX;
+            lbSwipeDelta = 0;
+            lbSetTrack(false);
         }, { passive: false });
+
         lightboxContainer.addEventListener('touchmove', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            // Pinch zoom
+            if (lbPinchState && e.touches.length === 2) {
+                e.preventDefault();
+                const dist = lbTouchDist(e);
+                const ratio = dist / lbPinchState.initDist;
+                const ns = Math.max(1, Math.min(5, lbPinchState.initScale * ratio));
+                const z = lbGetZoom(lbTrackIndex);
+                z.scale = ns;
+                if (z.scale <= 1) { z.panX = 0; z.panY = 0; }
+                lbApplyImgZoom(lbTrackIndex, false);
+                return;
+            }
+            // Touch pan (single finger when zoomed)
+            if (lbTouchPan && e.touches.length === 1) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - lbTouchPan.startX;
+                const dy = e.touches[0].clientY - lbTouchPan.startY;
+                const z = lbGetZoom(lbTrackIndex);
+                z.panX = lbTouchPan.initPanX + dx;
+                z.panY = lbTouchPan.initPanY + dy;
+                lbApplyImgZoom(lbTrackIndex, false);
+                return;
+            }
+            // Swipe to switch
             if (!lbSwipeActive) return;
             lbSwipeDelta = e.touches[0].clientX - lbSwipeStartX;
             if (Math.abs(lbSwipeDelta) > 5) { lbSwiped = true; e.preventDefault(); }
             lbSetTrack(false);
         }, { passive: false });
-        lightboxContainer.addEventListener('touchend', () => {
+
+        lightboxContainer.addEventListener('touchend', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            // End pinch
+            if (lbPinchState) {
+                if (e.touches.length < 2) {
+                    lbPinchState = null;
+                    lbApplyImgZoom(lbTrackIndex, true);
+                }
+                return;
+            }
+            // End touch pan
+            if (lbTouchPan) {
+                if (e.touches.length === 0) {
+                    lbTouchPan = null;
+                    lbApplyImgZoom(lbTrackIndex, true);
+                }
+                return;
+            }
+            // End swipe
             if (!lbSwipeActive) return;
             lbSwipeActive = false;
             const w = lbContainerW();
@@ -1363,6 +1477,38 @@
             lbApplyImgZoom(lbTrackIndex, true);
         });
     }
+
+    // ====== COPY CONTACT INFO ======
+    window.copyContact = function(text, el) {
+        navigator.clipboard.writeText(text).then(() => {
+            const hint = el.querySelector('.copy-hint');
+            const origHTML = hint.innerHTML;
+            hint.innerHTML = '<i class="fa-solid fa-check"></i> 已复制';
+            hint.style.opacity = '1';
+            setTimeout(() => {
+                hint.innerHTML = origHTML;
+                hint.style.opacity = '';
+            }, 1500);
+        }).catch(() => {
+            // Fallback for older browsers
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            const hint = el.querySelector('.copy-hint');
+            const origHTML = hint.innerHTML;
+            hint.innerHTML = '<i class="fa-solid fa-check"></i> 已复制';
+            hint.style.opacity = '1';
+            setTimeout(() => {
+                hint.innerHTML = origHTML;
+                hint.style.opacity = '';
+            }, 1500);
+        });
+    };
 
     function setupBackToTop() {
         window.addEventListener('scroll', () => { backToTop.classList.toggle('visible', window.scrollY > 600); });
