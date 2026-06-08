@@ -1171,6 +1171,7 @@
     let lbPinchState = null; // { initDist, initScale, initPanX, initPanY, cx, cy }
     // Touch pan state for mobile (single finger when zoomed)
     let lbTouchPan = null; // { startX, startY, initPanX, initPanY }
+    let _lbLastTap = { time: 0, x: 0, y: 0 }; // mobile double-tap detection
 
     function lbGetZoom(idx) {
         if (!lbZoom[idx]) lbZoom[idx] = { scale: 1, panX: 0, panY: 0 };
@@ -1397,8 +1398,22 @@
             }
             if (e.touches.length !== 1) return;
             const z = lbGetZoom(lbTrackIndex);
-            // Single finger on zoomed image: pan
+            // Single finger on zoomed image: check double-tap first, then pan
             if (z.scale > 1) {
+                const now = Date.now();
+                const dx = e.touches[0].clientX - _lbLastTap.x;
+                const dy = e.touches[0].clientY - _lbLastTap.y;
+                const dist = Math.hypot(dx, dy);
+                if (now - _lbLastTap.time < 300 && dist < 30) {
+                    // Double-tap: reset zoom
+                    e.preventDefault();
+                    z.scale = 1; z.panX = 0; z.panY = 0;
+                    lightboxContainer.style.cursor = 'grab';
+                    lbApplyImgZoom(lbTrackIndex, true);
+                    _lbLastTap = { time: 0, x: 0, y: 0 };
+                    return;
+                }
+                _lbLastTap = { time: now, x: e.touches[0].clientX, y: e.touches[0].clientY };
                 e.preventDefault();
                 lbTouchPan = {
                     startX: e.touches[0].clientX,
